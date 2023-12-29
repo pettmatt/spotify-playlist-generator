@@ -1,28 +1,42 @@
 <script lang="ts">
-    let logged: null | any = null
-    let spotifyForm: null | string = null
+    import { userAuth } from "../lib/spotify"
 
+    let authentication: null | any = null
     let pageUri: string | null = window.location.href
 
-    // Compare state
-    // https://developer.spotify.com/documentation/web-api/tutorials/code-flow
-    if (pageUri.includes("callback")) {
-        const uri = new URL(pageUri)
-        if (uri.searchParams.get("error")) {
-            // Handle error
-        } else {
-            // else manage auth code
-            const codeParam = uri.searchParams.get("code")
-            console.log("CODE", codeParam)
+    const uri = new URL(pageUri)
+    const error = uri.searchParams.get("error")
+    const codeParam = uri.searchParams.get("code") || null
+    const stateParam = uri.searchParams.get("state") || null
+
+    test()
+    function test() {
+        if (error) {
+            authentication = { error, token: null }
+        }
+
+        else if (!codeParam || !stateParam) {
+            authentication = {
+                error: {
+                    message: "Cannot complete session authentication.",
+                    reason : `code (${codeParam}), state (${stateParam})`
+                },
+                token: null
+            }
+        }
+
+        else if (pageUri?.includes("callback")) {
+            console.log("auth", authentication)
+            userAuth(codeParam, stateParam)
         }
     }
-    else pageUri = null
-    
 </script>
 
-{#if logged !== null}
+{#if authentication !== null}
     You're connected to Spotify!
 {:else}
-    <small>Requires logging in to Spotify</small>
-    <a href="http://localhost:3010/spotify/login">Normal link test</a>
+    <div class="login-wrapper">
+        <a class="button-like-link" href="http://localhost:3010/spotify/login">Login to Spotify</a>
+        <small>Application requires logging in to Spotify</small>
+    </div>
 {/if}
