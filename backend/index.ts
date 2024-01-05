@@ -12,15 +12,15 @@ const app = new Hono()
 const clientId = env["SPOTIFY_CLIENT_ID"]
 const redirectUri = env["SPOTIFY_REDIRECT_URI"]
 
-app.use(cors())
-// app.use("/*", cors({
-//     origin: "http://localhost:5173",
-//     allowHeaders: ["Cross-Origin"],
-//     allowMethods: ['POST', 'GET'],
-//     exposeHeaders: ['Content-Length'],
-// }))
+// app.use(cors())
+app.use("/*", cors({
+    origin: "http://localhost:5173",
+    allowHeaders: ["Cross-Origin", "Authorization"],
+    allowMethods: ["POST", "GET"],
+    exposeHeaders: ["Content-Length"],
+}))
 
-app.use('*', prettyJSON())
+app.use("*", prettyJSON())
 app.use("*", async (c, next) => {
     console.log(`[${c.req.method}] ${c.req.url}`)
     await next()
@@ -30,7 +30,11 @@ app.notFound((c) => c.json({ message: "Not found", ok: false }, 404))
 app.get("/", (c) => c.text("Welcome to; Spotify (not official) recommendation server"))
 app.get("/spotify/login", async (c) => {
     const responseType = "code"
-    const scope = "user-read-private user-read-email"
+    const scopeArray = [
+        "user-read-private", "user-library-modify", "user-read-email",
+        "user-follow-read", "user-top-read", "user-read-recently-played",
+    ]
+    const scope = scopeArray.join(" ")
     const state = generateRandomString(16)
 
     const url = "https://accounts.spotify.com/authorize" +
@@ -52,16 +56,22 @@ app.post("/spotify/token", async (c) => {
     if (state === null) {
         return c.json({
             error: "Missing value",
-            message: "State property value mismatch"
+            message: "State value mismatch"
+        }, 400)
+    }
+
+    if (code === null) {
+        return c.json({
+            error: "Missing value",
+            message: "Code value missing"
         }, 400)
     }
 
     const bodyParams = new URLSearchParams()
-    bodyParams.append("grant_type", "authorization_code")
+    bodyParams.append("grant_type", "client_credentials")
     bodyParams.append("redirect_uri", redirectUri)
     bodyParams.append("code", code)
 
-    console.log("   Making request")
     const res = await fetch("https://accounts.spotify.com/api/token", {
         method: "POST",
         headers: {
@@ -83,6 +93,65 @@ app.post("/spotify/token", async (c) => {
     }
 
     return c.json({ data }, 200)
+})
+
+app.get("/spotify/u/profile", async (c) => {
+    const token = c.req.header("Authorization")
+    const res = await fetch("https://api.spotify.com/v1/me", {
+        headers: {
+            "Authorization": token,
+            "Content-Type": "application/json"
+        },
+    })
+
+    const data = await res.json()
+
+    return c.json(data)
+})
+
+app.get("/spotify/test", async (c) => {
+    const token = c.req.header("Authorization")
+    const res = await fetch("https://api.spotify.com/v1/search?q=remaster%2520track%3ADoxy%2520artist%3AMiles%2520Davis&type=artist&market=SE", {
+        headers: {
+            "Authorization": token,
+            "Content-Type": "application/json"
+        },
+    })
+
+    const data = await res.json()
+
+    return c.json(data)
+})
+
+app.get("/spotify/track", async (c) => {
+    const token = c.req.header("Authorization")
+    const res = await fetch("https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=5", {
+        headers: {
+            "Authorization": token,
+            "Content-Type": "application/json"
+        },
+    })
+
+    console.log("res", res)
+    const body = await res.text()
+
+    return c.json(body)
+})
+
+app.get("/spotify/custom", async (c) => {
+    const token = c.req.header("Authorization")
+    const url = c.req.query("url")
+
+    const res = await fetch(url, {
+        headers: {
+            "Authorization": token,
+            "Content-Type": "application/json"
+        },
+    })
+
+    const data = await res.json()
+
+    return c.json(data)
 })
 
 Deno.serve({ port: port }, app.fetch)
