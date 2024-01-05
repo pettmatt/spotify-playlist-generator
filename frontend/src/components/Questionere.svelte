@@ -1,8 +1,10 @@
 <!-- Question what the user thinks of these artists, songs and genres -->
 <script lang="ts">
     import QuestionereProgressBar from "./QuestionereProgressBar.svelte"
+    import { makeApiRequest } from "../lib/spotify"
+    
     let currentQuestion = 0
-    const questions = [
+    let questions = [
         {
             question: "Test 1",
             options: [1,2,3]
@@ -16,12 +18,16 @@
             options: [1,2]
         },
     ]
-
+    
     function progress() {
         currentQuestion < questions.length
             ? currentQuestion++
             : null
     }
+
+    // async function fetchDetailsAboutAccount() {
+    //     const history = await makeApiRequest()
+    // }
 </script>
 
 <div class="questionere-wrapper">

@@ -1,7 +1,32 @@
 const serverUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3010"
 
-export function userAuth(code: string, state: string) {
-    const response = fetch(`${serverUrl}/spotify/token`, {
+export async function getTopSongs(token: string) {
+    const config = {
+        Authorization: `Bearer`
+    }
+
+    // const authRes = await fetch("https://api.spotify.com/v1", config)
+}
+
+export async function makeApiRequest(path: string) {
+    const token = getLocalToken()
+    const res = await fetch(`${serverUrl}${path}`, {
+        headers: { Authorization: token }
+    })
+
+    const body = await res.json()
+
+    return body
+}
+
+function getLocalToken(): string {
+    const tokenLS = localStorage.getItem("token") || ""
+    const tokenObject = JSON.parse(tokenLS)
+    return `${tokenObject.token_type} ${tokenObject.access_token}` || ""
+}
+
+export async function getAccessToken(code: string | null, state: string | null) {
+    const response = await fetch(`${serverUrl}/spotify/token`, {
         method: "POST",
         body: JSON.stringify({
             code,
@@ -9,25 +34,46 @@ export function userAuth(code: string, state: string) {
         })
     })
 
-    console.log("Response", response)
+    const body = await response.json()
 
-    if (!response.ok)
-        throw new Error("User authentication was not OK")
-
-    console.log("Here2", response)
-
-    return response.json()
-    // return { error, token: null }
-}
-
-export function logOut() {
-
-}
-
-export async function getTopSongs(token: string) {
-    const config = {
-        Authorization: `Bearer`
+    if (!response.ok) {
+        return {
+            error: body.error.details.error,
+            details: body.error.details.error_description,
+            message: body.error.message
+        }
     }
 
-    // const authRes = await fetch("https://api.spotify.com/v1", config)
+    return { token: body.data }
+}
+
+export function validateSessionToken(token: object) {
+    localStorage.setItem("token", JSON.stringify(token))
+
+    const currentTime = new Date().getTime()
+    localStorage.setItem("token-creation-time", JSON.stringify(currentTime))
+
+    const validated = checkSession()
+
+    return validated
+}
+
+export function checkSession() {
+    const currentTime = new Date().getTime()
+    const currentTimeInSeconds = currentTime / 1000
+    const tokenLS = localStorage.getItem("token")
+    const token = tokenLS ? JSON.parse(tokenLS) : ""
+
+    if (!token) return false
+
+    const tokenCreationTimeLS = localStorage.getItem("token-creation-time")
+
+    if (!tokenCreationTimeLS) return false
+
+    const tokenCreationTime = Number(tokenCreationTimeLS) / 1000
+    const expired = (tokenCreationTime + token.expires_in) < currentTimeInSeconds
+
+    if (expired) return false
+
+    return true
 }
