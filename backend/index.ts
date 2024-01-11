@@ -68,7 +68,7 @@ app.post("/spotify/token", async (c) => {
     }
 
     const bodyParams = new URLSearchParams()
-    bodyParams.append("grant_type", "client_credentials")
+    bodyParams.append("grant_type", "authorization_code")
     bodyParams.append("redirect_uri", redirectUri)
     bodyParams.append("code", code)
 
@@ -87,7 +87,8 @@ app.post("/spotify/token", async (c) => {
         return c.json({ 
             error: {
                 message: res.statusText,
-                details: data
+                status: res.status,
+                details: data,
             },
         }, res.status)
     }
@@ -106,12 +107,22 @@ app.get("/spotify/u/profile", async (c) => {
 
     const data = await res.json()
 
+    if (!res.ok) {
+        return c.json({
+            error: {
+                message: res.statusText,
+                status: res.status,
+                details: data,
+            }
+        })
+    }
+
     return c.json(data)
 })
 
-app.get("/spotify/test", async (c) => {
+app.get("/spotify/u/tracks", async (c) => {
     const token = c.req.header("Authorization")
-    const res = await fetch("https://api.spotify.com/v1/search?q=remaster%2520track%3ADoxy%2520artist%3AMiles%2520Davis&type=artist&market=SE", {
+    const res = await fetch("https://api.spotify.com/v1/me/top/tracks", {
         headers: {
             "Authorization": token,
             "Content-Type": "application/json"
@@ -120,22 +131,67 @@ app.get("/spotify/test", async (c) => {
 
     const data = await res.json()
 
+    if (!res.ok) {
+        return c.json({
+            error: {
+                message: res.statusText,
+                status: res.status,
+                details: data,
+            }
+        })
+    }
+
     return c.json(data)
 })
 
-app.get("/spotify/track", async (c) => {
+app.get("/spotify/u/:endpoint", async (c) => {
     const token = c.req.header("Authorization")
-    const res = await fetch("https://api.spotify.com/v1/me/top/tracks?time_range=long_term&limit=5", {
+    const endpoint = c.req.param("endpoint")
+
+    const res = await fetch(`https://api.spotify.com/v1/me/top/${endpoint}`, {
         headers: {
             "Authorization": token,
             "Content-Type": "application/json"
         },
     })
 
-    console.log("res", res)
-    const body = await res.text()
+    const data = await res.json()
 
-    return c.json(body)
+    if (!res.ok) {
+        return c.json({
+            error: {
+                message: res.statusText,
+                status: res.status,
+                details: data,
+            }
+        })
+    }
+
+    return c.json(data)
+})
+
+app.get("/spotify/genres", async (c) => {
+    const token = c.req.header("Authorization")
+    const res = await fetch("https://api.spotify.com/v1/recommendations/available-genre-seeds", {
+        headers: {
+            "Authorization": token,
+            "Content-Type": "application/json"
+        },
+    })
+
+    const data = await res.json()
+
+    if (!res.ok) {
+        return c.json({
+            error: {
+                message: res.statusText,
+                status: res.status,
+                details: data,
+            }
+        })
+    }
+
+    return c.json(data)
 })
 
 app.get("/spotify/custom", async (c) => {

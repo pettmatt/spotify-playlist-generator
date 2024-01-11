@@ -3,7 +3,6 @@
     import tfMain from "./lib/tensorflow-base"
     import SpotifyLogin from "./components/SpotifyLogin.svelte"
     import Questionere from "./components/Questionere.svelte"
-    // tfMain()
 
     const showGraph = false
 </script>

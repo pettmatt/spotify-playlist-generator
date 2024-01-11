@@ -1,13 +1,5 @@
 const serverUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3010"
 
-export async function getTopSongs(token: string) {
-    const config = {
-        Authorization: `Bearer`
-    }
-
-    // const authRes = await fetch("https://api.spotify.com/v1", config)
-}
-
 export async function makeApiRequest(path: string) {
     const token = getLocalToken()
     const res = await fetch(`${serverUrl}${path}`, {
@@ -38,9 +30,7 @@ export async function getAccessToken(code: string | null, state: string | null) 
 
     if (!response.ok) {
         return {
-            error: body.error.details.error,
-            details: body.error.details.error_description,
-            message: body.error.message
+            error: body
         }
     }
 

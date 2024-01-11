@@ -1,6 +1,6 @@
 <script lang="ts">
     import { validateSessionToken, checkSession, getAccessToken } from "../lib/spotify"
-    import SpotifyProfile from "./SpotifyProfile.svelte";
+    import SpotifyProfile from "./SpotifyProfile.svelte"
 
     let authenticationError: null | any = null
     let authentication: boolean = (localStorage.getItem("token") ? true : false)
