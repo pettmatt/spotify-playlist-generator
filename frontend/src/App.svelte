@@ -3,8 +3,10 @@
     import tfMain from "./lib/tensorflow-base"
     import SpotifyLogin from "./components/SpotifyLogin.svelte"
     import Questionere from "./components/Questionere.svelte"
+    import { checkSession } from "./lib/spotify"
 
     const showGraph = false
+    let loggedIn = checkSession()
 </script>
 
 <main>
@@ -12,7 +14,7 @@
 
     <SpotifyLogin />
 
-    {#if !showGraph }
+    {#if !showGraph && loggedIn }
 
         <Questionere />
 

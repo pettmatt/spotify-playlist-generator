@@ -11,18 +11,18 @@
     const codeParam = url.searchParams.get("code") || null
     const stateParam = url.searchParams.get("state") || null
 
-    function validateSession() {
+    async function validateSession() {
         const sessionIsValid = checkSession()
 
         if (sessionIsValid) return // Nothing to do here. Session should be usable.
 
-        if (error) {
+        if (error)
             authenticationError = { error }
-        }
+
         else if (pageUri?.includes("callback")) {
             getAccessToken(codeParam, stateParam)
                 .then(res => {
-                    console.log("userauth res", res)
+                    // console.log("userauth res", res)
                     const token = res.token
                     authentication = validateSessionToken(token)
                 })
@@ -33,7 +33,7 @@
                     logout()
                 })
         }
-        else console.log("ExchangeAuthCode else clause... Better check why we went here")
+        else console.log("ExchangeAuthCode else clause... If you see this, something probably broke.")
     }
 
     function logout() {
@@ -49,8 +49,9 @@
 </script>
 
 {#if authentication}
-    <SpotifyProfile />
-    <button on:click={ logout }>Logout</button>
+    <div class="profile-wrapper">
+        <SpotifyProfile logout={ logout } />
+    </div>
 {:else if authenticationError}
     <div class="error-wrapper">
         <p>Login error: <span>{ authenticationError }</span></p>
@@ -59,6 +60,22 @@
 {:else}
     <div class="login-wrapper">
         <a class="button-like-link" href="http://localhost:3010/spotify/login">Login to Spotify</a>
-        <small>Application requires logging in to Spotify</small>
+        <small>Application requires login to Spotify</small>
     </div>
 {/if}
+
+<style>
+    .login-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5em;
+    }
+    .login-wrapper a {
+        width: 8em;
+        text-align: center;
+        margin: 0 auto;
+    }
+    .login-wrapper small {
+        text-align: center;
+    }
+</style>
