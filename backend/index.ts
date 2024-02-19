@@ -12,7 +12,6 @@ const app = new Hono()
 const clientId = env["SPOTIFY_CLIENT_ID"]
 const redirectUri = env["SPOTIFY_REDIRECT_URI"]
 
-// app.use(cors())
 app.use("/*", cors({
     origin: "http://localhost:5173",
     allowHeaders: ["Cross-Origin", "Authorization"],
