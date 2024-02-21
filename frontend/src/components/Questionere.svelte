@@ -4,9 +4,7 @@
     import QuestionereProgressBar from "./QuestionereProgressBar.svelte"
     import { makeApiRequest } from "../lib/spotify"
 
-    const profile = {
-        explicitContent: null,
-    }
+    const profile = { explicitContent: null }
     let currentQuestion = 0
     let answers: string[][] = []
     let questions: Question[] = [
@@ -22,8 +20,8 @@
             }
         },
         {
-            question: "Do you want to listen artists that you follow?",
-            subText: "Select all you wish to include.",
+            question: "Do you still listen to them?",
+            subText: "Select artists that you want to influence your playlist.",
             uri: "/spotify/u/artists",
             getOptions: async (): Promise<string> => {
                 const artistObject = await makeApiRequest(questions[currentQuestion].uri)
@@ -43,7 +41,8 @@
         },
         {
             question: "Do you still like these tracks?",
-            subText: "Select all songs you like.",
+            subText: "Select tracks you want to influence your playlist.",
+            uri: "/spotify/u/tracks",
             getOptions: async (): Promise<string> => {
                 const trackObject = await makeApiRequest(questions[currentQuestion].uri)
                 const tracks = trackObject.items
@@ -62,21 +61,20 @@
                     "</div>"
                 )
             },
-            uri: "/spotify/u/tracks",
         },
-        {
-            question: "New playlist",
-            getOptions: async (): Promise<string> => {
-                const resultObject = await makeApiRequest(questions[currentQuestion].uri)
-                const results = resultObject.items
-                return results.map((r: Track) =>
-                    "<img src='" + r.album.images[1].url + "' alt='" + r.type + " image' />" +
-                    "<h3>" + r.name + "</h3>" +
-                    "<p>" + r.album.name + "</p>"
-                )
-            },
-            uri: "/spotify/search/heavy",
-        }
+        // {
+        //     question: "New playlist",
+        //     uri: "/spotify/search/heavy",
+        //     getOptions: async (): Promise<string> => {
+        //         const resultObject = await makeApiRequest(questions[currentQuestion].uri)
+        //         const results = resultObject.items
+        //         return results.map((r: Track) =>
+        //             "<img src='" + r.album.images[1].url + "' alt='" + r.type + " image' />" +
+        //             "<h3>" + r.name + "</h3>" +
+        //             "<p>" + r.album.name + "</p>"
+        //         )
+        //     },
+        // }
     ]
 
     function capitalizeReplaceDashesInString(s: string): string {
@@ -92,6 +90,15 @@
             : null
     }
 
+    async function load(){
+        const profileLS = localStorage.getItem("spotify-profile") || null
+        const profile = (profileLS) && JSON.parse(profileLS)
+
+        if (profile) {
+            profile.explicitContent = profile.explicit_content.filter_enabled
+        }
+    }
+
     function toggleAnswer(innerHTML: string) {
         if (answers[currentQuestion] === undefined) answers[currentQuestion] = []
         const answer = answers[currentQuestion]
@@ -101,17 +108,25 @@
             answers[currentQuestion] = answer.filter(a => a !== name)
         else
             answers[currentQuestion] = [...answer, name]
-
-        console.log(answers)
     }
 
-    async function load(){
-        const profileLS = localStorage.getItem("spotify-profile") || null
-        const profile = (profileLS) && JSON.parse(profileLS)
+    // Just a reminder that some times ugly and simple is better.
+    // function defineArgument(fullArgument: string, regex: RegExp[] | null = null): string | string[] {
+    //     if (regex) {
+    //         const matches = fullArgument.match(regex[0])
+    //         const innerHTML = matches?.map(match => match.replace(regex[1], ""))
+    //         console.log("Inner", innerHTML)
 
-        if (profile) {
-            profile.explicitContent = profile.explicit_content.filter_enabled
-        }
+    //         if (innerHTML) return innerHTML
+    //     }
+
+    //     return fullArgument
+    // }
+
+    function handleToggleClick(o: string) {
+        const value = o.toLocaleLowerCase()
+        toggleAnswer(value)
+        console.log(answers)
     }
 
     load()
@@ -139,7 +154,7 @@
                         {:then data}
                             {#each data as o}
                                 <li class="item-wrapper" style:border={ answers[currentQuestion] !== undefined && answers[currentQuestion].includes(o.toLocaleLowerCase()) ? "solid pink 2px" : "" }>
-                                    <button type="button" on:click={() => toggleAnswer(o.toLocaleLowerCase())}>
+                                    <button type="button" on:click={() => handleToggleClick(o)}>
                                         {@html o}
                                     </button>
                                 </li>
