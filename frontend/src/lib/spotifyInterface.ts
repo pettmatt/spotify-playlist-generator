@@ -2,10 +2,7 @@ export interface Question {
     question: string
     subText?: string
     uri: string
-    options: string[]
     getOptions?: Function
-    answers: string[]
-    followUp?: any[]
 }
 
 type Image = {

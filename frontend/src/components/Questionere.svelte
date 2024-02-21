@@ -8,28 +8,23 @@
         explicitContent: null,
     }
     let currentQuestion = 0
+    let answers: string[][] = []
     let questions: Question[] = [
         {
             question: "Select genres",
             uri: "/spotify/genres",
-            options: [],
             getOptions: async (): Promise<string>  => {
                 const genresObject = await makeApiRequest(questions[currentQuestion].uri)
                 const genres = genresObject.genres.map((g: string) =>
                     capitalizeReplaceDashesInString(g)
                 )
-                return genres.map((g: string) => 
-                    g +
-                    "<input type='checkbox' hidden=true name='" + g.toLocaleLowerCase() +"' value=false />"
-                )
-            },
-            answers: [],
+                return genres.map((g: string) => g)
+            }
         },
         {
             question: "Do you want to listen artists that you follow?",
             subText: "Select all you wish to include.",
             uri: "/spotify/u/artists",
-            options: [],
             getOptions: async (): Promise<string> => {
                 const artistObject = await makeApiRequest(questions[currentQuestion].uri)
                 const artists = artistObject.items
@@ -44,13 +39,11 @@
                         "</ul>" +
                     "</div>"
                 )
-            },
-            answers: [],
+            }
         },
         {
             question: "Do you still like these tracks?",
             subText: "Select all songs you like.",
-            options: [],
             getOptions: async (): Promise<string> => {
                 const trackObject = await makeApiRequest(questions[currentQuestion].uri)
                 const tracks = trackObject.items
@@ -70,9 +63,20 @@
                 )
             },
             uri: "/spotify/u/tracks",
-            answers: [],
-            followUp: [],
         },
+        {
+            question: "New playlist",
+            getOptions: async (): Promise<string> => {
+                const resultObject = await makeApiRequest(questions[currentQuestion].uri)
+                const results = resultObject.items
+                return results.map((r: Track) =>
+                    "<img src='" + r.album.images[1].url + "' alt='" + r.type + " image' />" +
+                    "<h3>" + r.name + "</h3>" +
+                    "<p>" + r.album.name + "</p>"
+                )
+            },
+            uri: "/spotify/search/heavy",
+        }
     ]
 
     function capitalizeReplaceDashesInString(s: string): string {
@@ -89,21 +93,16 @@
     }
 
     function toggleAnswer(innerHTML: string) {
-        const answers = questions[currentQuestion].answers
-        const startOfInput = innerHTML.indexOf("<")
-        const name = innerHTML.slice(0, startOfInput)
+        if (answers[currentQuestion] === undefined) answers[currentQuestion] = []
+        const answer = answers[currentQuestion]
+        const name = innerHTML
 
-        if (answers.includes(name))
-            questions[currentQuestion].answers = answers.filter(a => a !== name)
+        if (answer.includes(name))
+            answers[currentQuestion] = answer.filter(a => a !== name)
         else
-            questions[currentQuestion].answers.push(name)
+            answers[currentQuestion] = [...answer, name]
 
-        answers.map(a => {
-            const input = document.querySelector(`input[name="${name}"]`)
-            input!.value === "false"
-                ? input!.value = "true"
-                : input!.value = "false"
-        })
+        console.log(answers)
     }
 
     async function load(){
@@ -140,7 +139,7 @@
                         {:then data}
                             {#each data as o}
                                 <li class="item-wrapper">
-                                    <button on:click={() => toggleAnswer(o.toLocaleLowerCase())}>
+                                    <button type="button" on:click={() => toggleAnswer(o.toLocaleLowerCase())}>
                                         {@html o}
                                     </button>
                                 </li>
@@ -149,12 +148,6 @@
                             <p class="error-message">Couldn't fetch resources :(</p>
                             <p>Check if the session has expired.</p>
                         {/await}
-                    {:else}
-                        {#each q.options as o}
-                            <button on:click={() => toggleAnswer(o.toLocaleLowerCase())}>
-                                {o}
-                            </button>
-                        {/each}
                     {/if}
                 </ul>
             {/if}
