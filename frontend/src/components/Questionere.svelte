@@ -138,7 +138,7 @@
                             <p>Fetching resources</p>
                         {:then data}
                             {#each data as o}
-                                <li class="item-wrapper">
+                                <li class="item-wrapper" style:border={ answers[currentQuestion] !== undefined && answers[currentQuestion].includes(o.toLocaleLowerCase()) ? "solid pink 2px" : "" }>
                                     <button type="button" on:click={() => toggleAnswer(o.toLocaleLowerCase())}>
                                         {@html o}
                                     </button>
