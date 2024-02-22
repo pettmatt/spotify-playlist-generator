@@ -1,5 +1,5 @@
 import * as tf from "@tensorflow/tfjs"
-import { type Artist, type Track } from "./spotifyInterface"
+import { type Artist, type Track } from "./types/spotifyInterface"
 // import * as tf from "@tensorflow/tfjs-node-gpu"
 
 type UserReference = {

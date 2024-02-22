@@ -110,19 +110,6 @@
             answers[currentQuestion] = [...answer, name]
     }
 
-    // Just a reminder that some times ugly and simple is better.
-    // function defineArgument(fullArgument: string, regex: RegExp[] | null = null): string | string[] {
-    //     if (regex) {
-    //         const matches = fullArgument.match(regex[0])
-    //         const innerHTML = matches?.map(match => match.replace(regex[1], ""))
-    //         console.log("Inner", innerHTML)
-
-    //         if (innerHTML) return innerHTML
-    //     }
-
-    //     return fullArgument
-    // }
-
     function handleToggleClick(o: string) {
         const value = o.toLocaleLowerCase()
         toggleAnswer(value)
