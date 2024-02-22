@@ -30,12 +30,12 @@
                 const artistObject = await makeApiRequest(questions[currentQuestion].uri)
                 const artists = artistObject.items
                 return artists.map((a: Artist) => 
-                    "<img src='" + a.images[2].url + "' alt='" + a.type + " profile image' />" +
+                    "<img src='" + a.images[1].url + "' alt='" + a.type + " profile image' />" +
                     "<h3>" + a.name + "</h3>" +
                     "<div class='genre-wrapper'>" +
                         "<ul>" +
                             a.genres.map((g: string) => (
-                                "<li>" + capitalizeReplaceDashesInString(g) + "</li>"
+                                "<li class='dark-background-round'>" + capitalizeReplaceDashesInString(g) + "</li>"
                             )) +
                         "</ul>" +
                     "</div>"
@@ -46,6 +46,7 @@
             question: "Do you still like these tracks?",
             subText: "Select tracks you want to influence your playlist.",
             uri: "/spotify/u/tracks",
+            type: null,
             getOptions: async (): Promise<string> => {
                 const trackObject = await makeApiRequest(questions[currentQuestion].uri)
                 const tracks = trackObject.items
@@ -53,10 +54,10 @@
                     "<img src='" + t.album.images[1].url + "' alt='" + t.type + " image' />" +
                     "<h3>" + t.name + "</h3>" +
                     "<p>" + t.album.name + "</p>" +
-                    "<div class='genre-wrapper'>" +
+                    "<div class='artist-wrapper'>" +
                         "<ul>" +
                             t.artists.map((a: Artist) => 
-                                "<li>" +
+                                "<li class='dark-background-round'>" +
                                     a.name +
                                 "</li>"
                             ) +
@@ -133,19 +134,26 @@
                 {#if q?.subText}
                     <p>{q.subText}</p>
                 {/if}
-                <ul class="question-item-wrapper">
+                <ul class="list-wrapper">
                     {#if q?.getOptions}
                         {#await q.getOptions() }
                             <p>Fetching resources</p>
                         {:then data}
                             {#each data as o}
-                                <li class="item-wrapper" style:border={
-                                    answers[currentQuestion] !== undefined && 
-                                        answers[currentQuestion].includes(o.toLocaleLowerCase())
-                                            ? "solid pink 2px"
-                                            : ""
-                                }>
-                                    <button type="button" on:click={() => handleToggleClick(o)}>
+                                <li class={((i === 0) 
+                                    ? "genre"
+                                    : (i === 1) 
+                                        ? "artist"
+                                        : "track"
+                                    )
+                                    + " item-wrapper"}
+                                >
+                                    <button type="button" on:click={() => handleToggleClick(o)}
+                                        class={answers[currentQuestion] !== undefined && 
+                                            answers[currentQuestion].includes(o.toLocaleLowerCase())
+                                                ? "selected"
+                                                : ""}
+                                    >
                                         {@html o}
                                     </button>
                                 </li>
@@ -166,7 +174,7 @@
 </div>
 
 <style>
-    .questionere-wrapper {
+    /* .questionere-wrapper {
         margin-top: 2rem;
     }
     .questionere-header {
@@ -203,5 +211,5 @@
     :global(div ul li > *) {
         width: 100%;
         text-align: left;
-    }
+    } */
 </style>

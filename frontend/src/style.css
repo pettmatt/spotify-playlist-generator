@@ -1,0 +1,80 @@
+/* Generic rules of quetionare */
+.list-wrapper {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 0.45em;
+}
+
+.selected {
+    border-color: #dadada;
+    background-color: #272727;
+}
+
+.dark-background-round,
+.genre-overview > li {
+    background-color: #272727;
+    border-radius: 0.25em;
+    padding: 0.25em;
+}
+
+/* Genre questionare section */
+.list-wrapper .genre {
+    width: 30%;
+}
+
+/* Artist questionare section */
+.list-wrapper .artist,
+.list-wrapper .track {
+    width: 45%;
+}
+
+.list-wrapper button {
+    padding: 0;
+    border-radius: 0 0 0.25em 0.25em;
+}
+
+.list-wrapper .artist h3,
+.list-wrapper .track h3 {
+    margin: 0.5em;
+}
+
+.list-wrapper .artist .genre-wrapper ul,
+.list-wrapper .track .artist-wrapper ul {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: 0.6em 0.4em;
+    gap: 0.25em;
+}
+
+.list-wrapper .artist .genre-wrapper ul li,
+.list-wrapper .track .artist-wrapper ul li {
+    max-width: 90%;
+}
+
+.list-wrapper img {
+    width: 100%;
+}
+
+/* Overview */
+.genre-overview,
+.artist-overview,
+.track-overview {
+    display: flex;
+    flex-direction: row;
+    gap: 0.75rem;
+    overflow-x: scroll;
+}
+
+.genre-overview li,
+.artist-overview li,
+.track-overview li {
+    user-select: none;
+}
+
+.genre-overview li {
+    padding: 4em;
+    font-size: 1.2rem;
+}
