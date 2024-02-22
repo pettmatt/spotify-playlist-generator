@@ -1,4 +1,4 @@
-export function getSnippetFromString(fullString: string, regex: RegExp[]): string | string[] {
+export function getSectionFromString(fullString: string, regex: RegExp[]): string | string[] {
     const matches = fullString.match(regex[0])
     const snippet = matches?.map(match => match.replace(regex[1], ""))
 

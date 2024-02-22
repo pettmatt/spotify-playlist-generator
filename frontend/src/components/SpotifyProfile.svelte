@@ -34,7 +34,7 @@
         {profile.error.message}
     {:else}
         Logged in
-        <button class="mini-button" on:click={() => { showProfile = !showProfile }}>
+        <button class="mini-button" on:click={() => showProfile = !showProfile}>
             { showProfile ? ">" : "v" }
         </button>
         {#if !showProfile}

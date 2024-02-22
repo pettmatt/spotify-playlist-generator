@@ -1,12 +1,15 @@
 <!-- Question what the user thinks of these artists, songs and genres -->
 <script lang="ts">
-    import { type Artist, type Question, type Track } from "../lib/spotifyInterface"
+    import { type Artist, type Question, type Track } from "../lib/types/spotifyInterface"
     import QuestionereProgressBar from "./QuestionereProgressBar.svelte"
+    import { createEventDispatcher } from "svelte"
     import { makeApiRequest } from "../lib/spotify"
+
+    const dispatch = createEventDispatcher()
+    let answers: string[][] = []
 
     const profile = { explicitContent: null }
     let currentQuestion = 0
-    let answers: string[][] = []
     let questions: Question[] = [
         {
             question: "Select genres",
@@ -80,14 +83,12 @@
     function capitalizeReplaceDashesInString(s: string): string {
         return s.charAt(0).toUpperCase() + s.slice(1).replaceAll("-", " ")
     }
-    
-    async function progress() {
-        // const followUp = questions[currentQuestion]?.followUp
-        // const previousAnswer = questions[currentQuestion]?.answers
 
-        currentQuestion < questions.length
-            ? currentQuestion++
-            : null
+    function progress() {
+        if (currentQuestion < questions.length)
+            currentQuestion++
+        else
+            dispatch("answerData", answers)
     }
 
     async function load(){
@@ -120,13 +121,11 @@
 </script>
 
 <div class="questionere-wrapper">
-    <div class="header-wrapper">
-        <header>
-            <QuestionereProgressBar progress={
-                {current: currentQuestion, ends: questions.length}
-            } />
-        </header>
-    </div>
+    <header class="questionere-header">
+        <QuestionereProgressBar progress={
+            {current: currentQuestion, ends: questions.length}
+        } />
+    </header>
     <div class="question-wrapper">
         {#each questions as q, i}
             {#if i === currentQuestion}
@@ -140,7 +139,12 @@
                             <p>Fetching resources</p>
                         {:then data}
                             {#each data as o}
-                                <li class="item-wrapper" style:border={ answers[currentQuestion] !== undefined && answers[currentQuestion].includes(o.toLocaleLowerCase()) ? "solid pink 2px" : "" }>
+                                <li class="item-wrapper" style:border={
+                                    answers[currentQuestion] !== undefined && 
+                                        answers[currentQuestion].includes(o.toLocaleLowerCase())
+                                            ? "solid pink 2px"
+                                            : ""
+                                }>
                                     <button type="button" on:click={() => handleToggleClick(o)}>
                                         {@html o}
                                     </button>
@@ -165,7 +169,7 @@
     .questionere-wrapper {
         margin-top: 2rem;
     }
-    .header-wrapper {
+    .questionere-header {
         text-align: center;
     }
     .question-item-wrapper {
