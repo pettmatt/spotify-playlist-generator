@@ -1,0 +1,128 @@
+:root {
+    --lighter-background-color: #272727;
+    --light-highlighter-color: #dadada;
+}
+
+/* Generic rules of quetionare */
+.list-wrapper {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 0.45em;
+}
+
+.selected {
+    border-color: var(--light-highlighter-color);
+    background-color: var(--lighter-background-color);
+}
+
+.list-wrapper h3,
+.list-wrapper p,
+.overview h3,
+.overview p {
+    text-align: left;
+    width: 100%;
+    margin: 0 0 0.35em 0;
+}
+
+.list-wrapper .details,
+.overview .details {
+    margin: 0.25em 0.5em;
+}
+
+.list-wrapper > li {
+    width: 30%;
+}
+
+/* Genre */
+.list-wrapper li button {
+    width: 100%;
+}
+
+/* Artist & track */
+.list-wrapper .artist button,
+.list-wrapper .track button  {
+    display: flex;
+    flex-direction: row;
+    min-height: 5rem;
+    padding: 0;
+    border-radius: 0 0.5em 0.5em 0;
+}
+
+.list-wrapper .artist,
+.list-wrapper .track {
+    width: 47%;
+}
+
+.list-wrapper .artist img,
+.list-wrapper .track img  {
+    height: 100%;
+    width: auto;
+    min-height: 7rem;
+    max-height: 7rem;
+}
+
+.list-wrapper .genre-wrapper,
+.list-wrapper .artist-wrapper,
+.artist-overview {
+    text-align: left;
+    overflow-y: scroll;
+}
+
+.list-wrapper .genre-wrapper ul,
+.list-wrapper .artist-wrapper ul,
+.overview .artist-wrapper ul,
+.overview .genre-wrapper ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25em;
+}
+
+.list-wrapper .genre-wrapper ul li,
+.list-wrapper .artist-wrapper ul li,
+.overview .artist-wrapper ul li,
+.overview .genre-wrapper ul li {
+    padding: 0.25em;
+    border-radius: 0.3em;
+    font-size: 0.8em;
+    background: var(--lighter-background-color);
+}
+
+/* Overview */
+.overview-details .overview {
+    display: flex;
+    flex-direction: row;
+    gap: 0.6em;
+    overflow-x: scroll;
+    padding: 1em 0em;
+}
+
+.overview > li {
+    padding: 1em;
+    border-color: var(--light-highlighter-color);
+    border: 1px solid;
+    border-radius: 0.4em;
+}
+
+.overview-details .artist,
+.overview-details .track {
+    min-width: 25vw;
+}
+
+.overview img {
+    width: 100%;
+}
+
+/* Default mobile view */
+@media only screen and (max-width: 700px) {
+    .list-wrapper {
+        flex-direction: column;
+    }
+
+    .list-wrapper > li,
+    .list-wrapper .artist,
+    .list-wrapper .track  {
+        width: 100%;
+    }
+}
