@@ -4,6 +4,7 @@ import { cors } from "npm:hono/cors"
 import { Hono } from "npm:hono"
 
 import { generateRandomString } from "./lib/utils.ts"
+import { createErrorObject } from "./lib/error.ts"
 
 const env = await load()
 const port = Deno.env.get("APP_PORT") || 3010
@@ -106,37 +107,9 @@ app.get("/spotify/u/profile", async (c) => {
     const data = await res.json()
 
     if (!res.ok) {
-        return c.json({
-            error: {
-                message: res.statusText,
-                status: res.status,
-                details: data,
-            }
-        })
-    }
-
-    return c.json(data)
-})
-
-app.get("/spotify/u/tracks", async (c) => {
-    const token = c.req.header("Authorization")
-    const res = await fetch("https://api.spotify.com/v1/me/top/tracks", {
-        headers: {
-            "Authorization": token,
-            "Content-Type": "application/json"
-        },
-    })
-
-    const data = await res.json()
-
-    if (!res.ok) {
-        return c.json({
-            error: {
-                message: res.statusText,
-                status: res.status,
-                details: data,
-            }
-        })
+        return c.json(
+            createErrorObject(res)
+        )
     }
 
     return c.json(data)
@@ -155,13 +128,9 @@ app.get("/spotify/u/:endpoint", async (c) => {
     const data = await res.json()
 
     if (!res.ok) {
-        return c.json({
-            error: {
-                message: res.statusText,
-                status: res.status,
-                details: data,
-            }
-        })
+        return c.json(
+            createErrorObject(res)
+        )
     }
 
     return c.json(data)
@@ -179,23 +148,61 @@ app.get("/spotify/genres", async (c) => {
     const data = await res.json()
 
     if (!res.ok) {
-        return c.json({
-            error: {
-                message: res.statusText,
-                status: res.status,
-                details: data,
-            }
-        })
+        return c.json(
+            createErrorObject(res)
+        )
     }
 
     return c.json(data)
 })
 
-app.get("/spotify/search/:query", async (c) => {
+app.get("/spotify/artists/:id/related-artists", async (c) => {
     const token = c.req.header("Authorization")
-    const query = c.req.header("query")
+    const id = c.req.param("id")
+    const res = await fetch(`https://api.spotify.com/v1/artists/${id}/related-artists`, {
+        headers: {
+            "Authorization": token,
+            "Content-Type": "application/json"
+        },
+    })
 
-    const res = await fetch(`https://api.spotify.com/v1/search?q=${query}&type=track&limit=15`, {
+    const data = await res.json()
+
+    if (!res.ok) {
+        return c.json(
+            createErrorObject(res)
+        )
+    }
+
+    return c.json(data)
+})
+
+app.get("/spotify/single-search/:query", async (c) => {
+    const token = c.req.header("Authorization")
+    const query = c.req.param("query")
+    const res = await fetch(`https://api.spotify.com/v1/search?q=${query}&limit=1`, {
+        headers: {
+            "Authorization": token,
+            "Content-Type": "application/json"
+        },
+    })
+
+    const data = await res.json()
+
+    if (!res.ok) {
+        return c.json(
+            createErrorObject(res)
+        )
+    }
+
+    return c.json(data)
+})
+
+app.get("/spotify/track/search/:query", async (c) => {
+    const token = c.req.header("Authorization")
+    const query = c.req.param("query")
+
+    const res = await fetch(`https://api.spotify.com/v1/search?q=${query}&type=track&limit=10`, {
         headers: {
             "Authorization": token,
             "Content-Type": "application/json"
@@ -209,25 +216,10 @@ app.get("/spotify/search/:query", async (c) => {
             error: {
                 message: res.statusText,
                 status: res.status,
-                details: data,
+                details: res,
             }
         })
     }
-
-    return c.json(data)
-})
-
-app.get("/spotify/custom", async (c) => {
-    const token = c.req.header("Authorization")
-    const url = c.req.query("url")
-    const res = await fetch(url, {
-        headers: {
-            "Authorization": token,
-            "Content-Type": "application/json"
-        },
-    })
-
-    const data = await res.json()
 
     return c.json(data)
 })

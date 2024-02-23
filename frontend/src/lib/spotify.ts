@@ -7,7 +7,6 @@ export async function makeApiRequest(path: string) {
     })
 
     const body = await res.json()
-    console.log("SPOTIFY", body)
 
     return body
 }

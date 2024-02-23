@@ -1,5 +1,6 @@
 <!-- Question what the user thinks of these artists, songs and genres -->
 <script lang="ts">
+    import "../style/questionere.css"
     import { type Artist, type Question, type Track } from "../lib/types/spotifyInterface"
     import QuestionereProgressBar from "./QuestionereProgressBar.svelte"
     import { createEventDispatcher } from "svelte"
@@ -30,7 +31,8 @@
                 const artistObject = await makeApiRequest(questions[currentQuestion].uri)
                 const artists = artistObject.items
                 return artists.map((a: Artist) => 
-                    "<img src='" + a.images[1].url + "' alt='" + a.type + " profile image' />" +
+                    "<img src='" + a.images[2].url + "' alt='" + a.type + " profile image' />" +
+                    "<div class='details artist'>" +
                     "<h3>" + a.name + "</h3>" +
                     "<div class='genre-wrapper'>" +
                         "<ul>" +
@@ -52,16 +54,18 @@
                 const tracks = trackObject.items
                 return tracks.map((t: Track) =>
                     "<img src='" + t.album.images[1].url + "' alt='" + t.type + " image' />" +
-                    "<h3>" + t.name + "</h3>" +
-                    "<p>" + t.album.name + "</p>" +
-                    "<div class='artist-wrapper'>" +
-                        "<ul>" +
-                            t.artists.map((a: Artist) => 
-                                "<li class='dark-background-round'>" +
-                                    a.name +
-                                "</li>"
-                            ) +
-                        "</ul>" +
+                    "<div class='details track'>" +
+                        "<h3>" + t.name + "</h3>" +
+                        "<p>" + t.album.name + "</p>" +
+                        "<div class='artist-wrapper'>" +
+                            "<ul>" +
+                                t.artists.map((a: Artist) => 
+                                    "<li class='dark-background-round'>" +
+                                        a.name +
+                                    "</li>"
+                                ) +
+                            "</ul>" +
+                        "</div>" +
                     "</div>"
                 )
             },
@@ -172,44 +176,3 @@
         </button>
     </div>
 </div>
-
-<style>
-    /* .questionere-wrapper {
-        margin-top: 2rem;
-    }
-    .questionere-header {
-        text-align: center;
-    }
-    .question-item-wrapper {
-        height: 59vh;
-        overflow-y: scroll;
-    }
-    .item-wrapper {
-        display: flex;
-        flex-direction: row;
-    }
-    ul {
-        padding-left: 0;
-    }
-    div ul li {
-        margin: 0.25em 0;
-        text-align: left;
-        width: 100%;
-    }
-    :global(.genre-wrapper ul) {
-        list-style-type: none;
-        padding-left: 0;
-    }
-    :global(.genre-wrapper ul li) {
-        padding: 0.3em 0.5em;
-        margin: 0.25em;
-        background-color: rgba(0, 0, 0, 0.4);
-        display: inline-block;
-        border-radius: 0.25em;
-        max-width: 35%;
-    }
-    :global(div ul li > *) {
-        width: 100%;
-        text-align: left;
-    } */
-</style>
