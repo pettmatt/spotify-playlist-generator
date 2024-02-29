@@ -33,6 +33,7 @@ app.get("/spotify/login", async (c) => {
     const scopeArray = [
         "user-read-private", "user-library-modify", "user-read-email",
         "user-follow-read", "user-top-read", "user-read-recently-played",
+        "playlist-modify-private"
     ]
     const scope = scopeArray.join(" ")
     const state = generateRandomString(16)
@@ -201,24 +202,70 @@ app.get("/spotify/single-search/:query", async (c) => {
 app.get("/spotify/track/search/:query", async (c) => {
     const token = c.req.header("Authorization")
     const query = c.req.param("query")
-
+    
     const res = await fetch(`https://api.spotify.com/v1/search?q=${query}&type=track&limit=10`, {
         headers: {
             "Authorization": token,
             "Content-Type": "application/json"
         },
     })
+    
+    const data = await res.json()
+
+    if (!res.ok) {
+        return c.json(
+            createErrorObject(res)
+        )
+    }
+
+    return c.json(data)
+})
+
+app.post("/spotify/u/:id/playlist/create", async (c) => {
+    const token = c.req.header("Authorization")
+    const id = c.req.param("id")
+    const body = await c.req.json()
+
+    const res = await fetch(`https://api.spotify.com/v1/users/${id}/playlists`, {
+        method: "POST",
+        headers: {
+            "Authorization": token,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+    })
 
     const data = await res.json()
 
     if (!res.ok) {
-        return c.json({
-            error: {
-                message: res.statusText,
-                status: res.status,
-                details: res,
-            }
-        })
+        return c.json(
+            createErrorObject(res)
+        )
+    }
+
+    return c.json(data)
+})
+
+app.post("/spotify/playlist/:id/add", async (c) => {
+    const token = c.req.header("Authorization")
+    const id = c.req.param("id")
+    const body = await c.req.json()
+
+    const res = await fetch(`https://api.spotify.com/v1/users/${id}/playlists`, {
+        method: "POST",
+        headers: {
+            "Authorization": token,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+    })
+
+    const data = await res.json()
+
+    if (!res.ok) {
+        return c.json(
+            createErrorObject(res)
+        )
     }
 
     return c.json(data)

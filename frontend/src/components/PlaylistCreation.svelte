@@ -1,12 +1,20 @@
 <script lang="ts">
-    import { makeApiRequest } from "../lib/spotify";
-    import { flattenArray, getRandomizePortionFromArray, getSectionFromString } from "../lib/spotifyUtils"
+    import { checkSession, makeApiRequest } from "../lib/spotify"
+    import { createNewPlaylist, defaultRNGFilter, flattenArray, extractTrackIds, getSectionFromString, priorityRNGFilter } from "../lib/spotifyUtils"
 
     export let userChoices: string[][]
     let processing: boolean = false
+    let message: string | null = null
 
     async function createPlaylist() {
-        const [genres, artists, tracks] = userChoices
+        // TODO: Currently this function result to around 5000 tracks being fetched. Chech how to reduce it to 100
+
+        // Check if session is still valid
+        if (!checkSession()) return
+
+        const genres = userChoices[0] ?? []
+        const artists = userChoices[1] ?? []
+        const tracks = userChoices[2] ?? []
         processing = true
 
         // FSeperate relevant data from HTML display strings
@@ -22,24 +30,18 @@
 
         // Make multiple http-requests to Spotify, if the search term cannot be put into one!asdsa
         const similarArtistSearch = await Promise.all(
-            flattenArray([...artistNames, ...trackArtists]).map(async artist => {
-                const response = await makeApiRequest(`/spotify/single-search/${artist}&type=artist`)
-                if (response) {
-                    console.log("response", response)
+            flattenArray([...artistNames, ...trackArtists])
+                .map(async artist => {
+                    const response = await makeApiRequest(`/spotify/single-search/${artist}&type=artist`)
                     const finalResponse = await makeApiRequest(`/spotify/artists/${response.artists.items[0].id}/related-artists`)
-                    return finalResponse
-                }
 
-                else {
-                    // Trigger logout or Error that says the user should log back in
-                }
-            })
+                    return finalResponse
+                })
         )
 
-        const flatGenreList = flattenArray([...genres, ...artistGenres])
-        console.log("flat", flatGenreList)
-        console.log("related artists", similarArtistSearch)
+        const flatGenreList = flattenArray([ ...genres, ...artistGenres])
 
+        // Based on how many times genre appears, its priority rises and is more likely to be searched.
         const genrePriority: any = {}
         for (let genre of flatGenreList) {
             genrePriority[genre] = (genrePriority[genre] || 0) + 1
@@ -47,29 +49,49 @@
 
         console.log("Priority", genrePriority)
 
-        const genreSearch = await Promise.all(
-            Object.keys(genrePriority).map(async genre => {
-                // Skip genre if the priority is low enough and if there is enough genres
-                if (genrePriority[genre] === 1 && flatGenreList.length > 4) return
+        // Filtering lists with some RNG
+        const filteredGenres = priorityRNGFilter(genrePriority)
+        const filteredArtists = similarArtistSearch.map(result => 
+            defaultRNGFilter(result.artists)
+        )
 
-                const newSearch = await makeApiRequest(`/spotify/track/search/tag%3Anew%25${genre}`)
-                const hipsterSearch = await makeApiRequest(`/spotify/track/search/tag%3Ahipster%25${genre}`)
-                return [newSearch, hipsterSearch]
+        const genreSearch = await Promise.all(
+            Object.keys(filteredGenres).map(async genre => {
+                const newSearch = await makeApiRequest(`/spotify/track/search/${genre}`)
+                // const hipsterSearch = await makeApiRequest(`/spotify/track/search/tag%3Ahipster%25${genre}`)
+                return newSearch
             })
         )
 
         // Make search based on similar artists
-        const similarArtistSearchResult = await Promise.all(
-            getRandomizePortionFromArray(similarArtistSearch).map(async artist => {
-                console.log("QUKSAHDasd", artist)
-                // return await makeApiRequest(`/spotify/track/search/${artist}`)
+        const artistResults = await Promise.all(
+            filteredArtists.map(async artists => {
+                const artistsResults = await Promise.all(
+                    artists.map(async artist => {
+                        const searchResult = await makeApiRequest(`/spotify/track/search/${artist.name}`)
+                        return searchResult
+                    })
+                )
+                return artistsResults
             })
         )
-        console.log("Similar result", similarArtistSearchResult)
-        console.log(genreSearch)
 
         // 3) Create playlist for the user
-        
+        // const playlistResponse = await createNewPlaylist()
+
+        // if (playlistResponse.error) {
+        //     console.log(playlistResponse)
+        //     processing = false
+        //     message = `${playlistResponse.error.message} ${playlistResponse.error.status} error`
+        //     return
+        // }
+
+        // const playlistId = playlistResponse.id
+        // console.log("playlist id", playlistResponse)
+        const genreTrackIds = extractTrackIds(genreSearch)
+        const artistTrackIds = extractTrackIds(artistResults)
+        console.log(genreTrackIds)
+        console.log(artistTrackIds)
 
         // 4) Show the playlist with a link to it
         
@@ -78,6 +100,9 @@
 
 {#if processing}
     <h2>Loading</h2>
+{:else if message}
+    <h2>Message</h2>
+    <p>{message}</p>
 {:else}
     <div class="playlist-wrapper">
         <h2>Overview</h2>
@@ -86,23 +111,29 @@
         <div class="overview-details">
             <h3>Genres</h3>
             <ul class="overview genre" aria-label="genre list">
-                {#each userChoices[0] as genre}
-                    <li>{@html genre}</li>
-                {/each}
+                {#if userChoices[0]}
+                    {#each userChoices[0] as genre}
+                        <li>{@html genre}</li>
+                    {/each}
+                {/if}
             </ul>
 
             <h3>Artists</h3>
             <ul class="overview artist" aria-label="artist list">
-                {#each userChoices[1] as artist}
-                    <li>{@html artist}</li>
-                {/each}
+                {#if userChoices[1]}
+                    {#each userChoices[1] as artist}
+                        <li>{@html artist}</li>
+                    {/each}
+                {/if}
             </ul>
 
             <h3>Tracks</h3>
             <ul class="overview track" aria-label="track list">
-                {#each userChoices[2] as track}
-                    <li>{@html track}</li>
-                {/each}
+                {#if userChoices[2]}
+                    {#each userChoices[2] as track}
+                        <li>{@html track}</li>
+                    {/each}
+                {/if}
             </ul>
         </div>
 

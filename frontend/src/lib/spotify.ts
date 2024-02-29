@@ -11,6 +11,19 @@ export async function makeApiRequest(path: string) {
     return body
 }
 
+export async function makeApiPostRequest(path: string, data: object) {
+    const token = getLocalToken()
+    const res = await fetch(`${serverUrl}${path}`, {
+        method: "POST",
+        headers: { Authorization: token },
+        body: JSON.stringify(data)
+    })
+
+    const body = await res.json()
+
+    return body
+}
+
 function getLocalToken(): string {
     const tokenLS = localStorage.getItem("token") || ""
     const tokenObject = JSON.parse(tokenLS)

@@ -1,4 +1,7 @@
-export function getSectionFromString(fullString: string, regex: RegExp[]): string | string[] {
+import { makeApiPostRequest } from "./spotify"
+import type { Track } from "./types/spotifyInterface"
+
+export function getSectionFromString(fullString: string, regex: RegExp[]): string[] | [] {
     const matches = fullString.match(regex[0])
     const snippet = matches?.map(match =>
         match.replace(regex[1], "").replace(regex[2], "")
@@ -6,11 +9,10 @@ export function getSectionFromString(fullString: string, regex: RegExp[]): strin
 
     if (snippet) return snippet
 
-    // If snippet is not found the function returns the full string
-    return fullString
+    return []
 }
 
-export function flattenArray(arr: []): [] {
+export function flattenArray(arr: any[]): [] {
     return arr.reduce((acc, val) => {
         if (Array.isArray(val)) acc.push(...flattenArray(val))
         else acc.push(val)
@@ -18,27 +20,111 @@ export function flattenArray(arr: []): [] {
     }, [])
 }
 
-function shuffleArray(array: any[]) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1))
-        [array[i], array[j]] = [array[j], array[i]]
+function pickRandomValuesFromList(list: any[], returnCount: number): any[] {
+    const newList = []
+
+    for (let i = 0; i < returnCount; i++) {
+        const rn = Math.floor(Math.random() * list.length)
+        if (list[rn]) newList.push(list[rn])
+        delete list[rn]
     }
 
-    return array
+    return newList
 }
 
-function splitArrayIntoThird(array: any[]) {
-    const thirdLength = Math.floor(array.length / 3)
+type SingleValueObject = { [key:string]: string }
+export function priorityRNGFilter(object: object) {
+    const keys = Object.keys(object)
+    const values = Object.values(object)
 
-    const part1 = array.slice(0, thirdLength)
-    const part2 = array.slice(thirdLength, 2 * thirdLength)
-    const part3 = array.slice(2 * thirdLength)
+    let lowPriority = []
+    let highPriority = []
 
-    return [part1, part2, part3]
+    for (let i = 0; i < values.length; i++) {
+        let obj: SingleValueObject = {}
+        const name = keys[i]
+        obj[name] = values[i]
+
+        if (values[i] > 1)
+            highPriority.push(obj)
+        else
+            lowPriority.push(obj)
+    }
+
+    while (highPriority.length < 5) {
+        if (highPriority.length < 5 && lowPriority.length > 2) {
+            const randomValues = pickRandomValuesFromList(lowPriority, lowPriority.length / 3)
+            highPriority.push(...randomValues)
+        }
+        else break
+    }
+
+    return highPriority
 }
 
-export function getRandomizePortionFromArray(array: any[]) {
-    const randomized = shuffleArray(array)
-    const split = splitArrayIntoThird(randomized)
-    return split[0]
+export function defaultRNGFilter(list: any[]) {
+    return pickRandomValuesFromList(list, Math.floor(list.length / 3))
+}
+
+export function extractTrackIds(list: Track[] | any[]) {
+    // const cleanList = flattenArray(tracks)
+    const newList: string[] = []
+
+    for (let i = 0; i < list.length; i++) {
+        const trackList = list[i]
+
+        for (let ii = 0; ii < trackList.length; ii++) {
+            console.log("ii", list[ii])
+            const searchResults = list[ii]
+
+            for (let iii = 0; iii < searchResults.length; iii++) {
+                const tracks = searchResults[iii].tracks.items
+
+                for (let j = 0; j < tracks.length; j++) {
+                    const uriString = tracks[j].uri
+                    newList.push(uriString)
+                }
+            }
+        }
+    }
+
+    return newList
+}
+
+export function fetchUserId() {
+    const rawUserData = localStorage.getItem("spotify-profile")
+
+    if (!rawUserData) return new Error("Local spotify profile data is missing.")
+
+    const userData = JSON.parse(rawUserData)
+
+    return userData.id || new Error("User ID is missing.")
+}
+
+export async function createNewPlaylist() {
+    const idResponse = fetchUserId()
+    if (typeof idResponse === "object") return idResponse
+
+    const response = await makeApiPostRequest(`/spotify/u/${idResponse}/playlist/create`, {
+        name: `generated-playlist`,
+        public: false,
+        description: `Generated with a web tool`
+    })
+
+    if (!response.error)
+        sessionStorage.setItem("spotify-playlist", JSON.stringify(response))
+
+    return response
+}
+
+export async function addTracksToPlaylist(id: string, trackUris: string[]) {
+    const response = await makeApiPostRequest(`/spotify/playlist/${id}/add`, {
+        playlist_id: id,
+        uris: trackUris
+    })
+
+    if (!response.error)
+        sessionStorage.setItem("spotify-playlist", JSON.stringify(response))
+
+    return response
 }
