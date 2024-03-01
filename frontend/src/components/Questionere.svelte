@@ -3,10 +3,8 @@
     import "../style/questionere.css"
     import { type Artist, type Question, type Track } from "../lib/types/spotifyInterface"
     import QuestionereProgressBar from "./QuestionereProgressBar.svelte"
-    import { createEventDispatcher } from "svelte"
     import { makeApiRequest } from "../lib/spotify"
 
-    const dispatch = createEventDispatcher()
     let answers: string[][] = []
 
     const profile = { explicitContent: null }
@@ -48,7 +46,6 @@
             question: "Do you still like these tracks?",
             subText: "Select tracks you want to influence your playlist.",
             uri: "/spotify/u/tracks",
-            type: null,
             getOptions: async (): Promise<string> => {
                 const trackObject = await makeApiRequest(questions[currentQuestion].uri)
                 const tracks = trackObject.items
@@ -141,7 +138,9 @@
                 <ul class="list-wrapper">
                     {#if q?.getOptions}
                         {#await q.getOptions() }
-                            <p>Fetching resources</p>
+                        <div class="loading">
+                            <p>Next phase</p>
+                        </div>
                         {:then data}
                             {#each data as o}
                                 <li class={((i === 0) 
@@ -172,7 +171,7 @@
         {/each}
 
         <button disabled={currentQuestion > questions.length} on:click={progress}>
-            Done
+            Next
         </button>
     </div>
 </div>

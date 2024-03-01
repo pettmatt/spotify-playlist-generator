@@ -119,34 +119,40 @@ async function createPlaylist() {
         <p>The playlist will be created using these details</p>
 
         <div class="overview-details">
-            <h3>Genres</h3>
-            <ul class="overview genre" aria-label="genre list">
-                {#if userChoices[0]}
-                    {#each userChoices[0] as genre}
-                        <li>{@html genre}</li>
-                    {/each}
-                {/if}
-            </ul>
+            <div class="overview-section">
+                <h3>Genres</h3>
+                <ul class="overview genre" aria-label="genre list">
+                    {#if userChoices[0]}
+                        {#each userChoices[0] as genre}
+                            <li>{@html genre}</li>
+                        {/each}
+                    {/if}
+                </ul>
+            </div>
 
-            <h3>Artists</h3>
-            <ul class="overview artist" aria-label="artist list">
-                {#if userChoices[1]}
-                    {#each userChoices[1] as artist}
-                        <li>{@html artist}</li>
-                    {/each}
-                {/if}
-            </ul>
+            <div class="overview-section">
+                <h3>Artists</h3>
+                <ul class="overview artist" aria-label="artist list">
+                    {#if userChoices[1]}
+                        {#each userChoices[1] as artist}
+                            <li>{@html artist}</li>
+                        {/each}
+                    {/if}
+                </ul>
+            </div>
 
-            <h3>Tracks</h3>
-            <ul class="overview track" aria-label="track list">
-                {#if userChoices[2]}
-                    {#each userChoices[2] as track}
-                        <li>{@html track}</li>
-                    {/each}
-                {/if}
-            </ul>
+            <div class="overview-section">
+                <h3>Tracks</h3>
+                <ul class="overview track" aria-label="track list">
+                    {#if userChoices[2]}
+                        {#each userChoices[2] as track}
+                            <li>{@html track}</li>
+                        {/each}
+                    {/if}
+                </ul>
+            </div>
         </div>
 
-        <button on:click={() => createPlaylist()}>Continue</button>
+        <button on:click={() => createPlaylist()}>Generate playlist</button>
     </div>
 {/if}

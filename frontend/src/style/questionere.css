@@ -10,6 +10,25 @@
     flex-wrap: wrap;
     width: 100%;
     gap: 0.45em;
+    overflow-y: scroll;
+    max-height: 70vh;
+}
+
+.question-wrapper {
+    position: relative;
+}
+
+.question-wrapper .loading {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.question-wrapper > button {
+    position: absolute;
+    right: 3%;
 }
 
 .selected {
@@ -32,7 +51,7 @@
 }
 
 .list-wrapper > li {
-    width: 30%;
+    width: 32%;
 }
 
 /* Genre */
@@ -90,24 +109,45 @@
 }
 
 /* Overview */
+.overview-details {
+    height: 70vh;
+    overflow-y: scroll;
+    margin-bottom: 1em;
+}
+
 .overview-details .overview {
     display: flex;
     flex-direction: row;
-    gap: 0.6em;
     overflow-x: scroll;
-    padding: 1em 0em;
+    gap: 0.6em;
 }
 
+.overview-section {
+    width: auto;
+    min-width: 15%;
+    max-width: 50%;
+    overflow-x: scroll;
+}
+
+.genre > li,
 .overview > li {
-    padding: 1em;
     border-color: var(--light-highlighter-color);
     border: 1px solid;
+}
+
+.genre > li {
     border-radius: 0.4em;
+    padding: 0.5em 1em;
+}
+
+.artist > li,
+.track > li {
+    border-radius: 0 0 0.4em 0.4em;
 }
 
 .overview-details .artist,
 .overview-details .track {
-    min-width: 25vw;
+    min-width: 10vw;
 }
 
 .overview img {

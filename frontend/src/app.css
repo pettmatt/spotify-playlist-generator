@@ -48,10 +48,14 @@ h1 {
 }
 
 #app {
+	padding: 0 1rem;
+	text-align: left;
+	width: 100vw;
+}
+
+main {
 	max-width: 80vw;
 	margin: 0 auto;
-	padding: 1rem;
-	text-align: left;
 }
 
 button {

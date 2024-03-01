@@ -29,14 +29,10 @@
     getProfile()
 </script>
 
-<nav class="profile-wrapper">
+<div class="profile-wrapper">
     {#if profile?.error}
         {profile.error.message}
     {:else}
-        Logged in
-        <button class="mini-button" on:click={() => showProfile = !showProfile}>
-            { showProfile ? ">" : "v" }
-        </button>
         {#if !showProfile}
             <a class="profile" href={profile?.external_urls.spotify}>
                 <img class="profile-image" loading="lazy" src={profile?.images[0].url} alt="Profile" />
@@ -46,12 +42,16 @@
 
         <button class="link-like-button" on:click={ logout }>Logout</button>
     {/if}
-</nav>
+</div>
 
 <style>
+    .profile-wrapper {
+        display: flex;
+        flex-direction: column;
+        text-align: right;
+    }
     .profile {
         display: flex;
-        margin: 0.5em 1em;
         gap: 0.5em;
         padding: 0.25em;
         border: 2px solid none;
@@ -60,7 +60,6 @@
         transform: ease 0.5s border;
     }
     .profile:hover {
-        border: 2px solid var(--spotify-green);
         color: var(--spotify-green);
     }
     .profile-image {

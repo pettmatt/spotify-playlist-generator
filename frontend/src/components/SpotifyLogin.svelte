@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { createEventDispatcher } from "svelte"
     import { validateSessionToken, checkSession, getAccessToken } from "../lib/spotify"
     import SpotifyProfile from "./SpotifyProfile.svelte"
 
@@ -33,7 +34,7 @@
                     logout()
                 })
         }
-        else console.log("ExchangeAuthCode else clause... If you see this, something probably broke.")
+        else console.log("If you see this, something probably broke while validating the session.")
     }
 
     function logout() {
@@ -41,17 +42,15 @@
         localStorage.removeItem("token")
         localStorage.removeItem("token-creation-time")
 
-        if (pageUri.includes("callback"))
-            history.pushState(null, "", url.origin)
+        // if (pageUri.includes("callback"))
+        //     history.pushState(null, "", url.origin)
     }
 
     validateSession()
 </script>
 
 {#if authentication}
-    <div class="profile-wrapper">
-        <SpotifyProfile logout={ logout } />
-    </div>
+    <SpotifyProfile logout={ logout } />
 {:else if authenticationError}
     <div class="error-wrapper">
         <p>Login error: <span>{ authenticationError }</span></p>
@@ -65,17 +64,20 @@
 {/if}
 
 <style>
-    .login-wrapper {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5em;
-    }
-    .login-wrapper a {
-        width: 8em;
-        text-align: center;
-        margin: 0 auto;
-    }
-    .login-wrapper small {
-        text-align: center;
-    }
+.login-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+}
+.login-wrapper a {
+    width: 8em;
+    text-align: center;
+    margin: 0 auto;
+}
+.login-wrapper small {
+    text-align: center;
+}
+.error-wrapper p span {
+    color: rgb(200, 75, 75);
+}
 </style>
