@@ -3,8 +3,10 @@
     import "../style/questionere.css"
     import { type Artist, type Question, type Track } from "../lib/types/spotifyInterface"
     import QuestionereProgressBar from "./QuestionereProgressBar.svelte"
+    import { createEventDispatcher } from "svelte"
     import { makeApiRequest } from "../lib/spotify"
 
+    const dispatch = createEventDispatcher()
     let answers: string[][] = []
 
     const profile = { explicitContent: null }
