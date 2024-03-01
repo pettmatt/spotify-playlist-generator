@@ -251,7 +251,7 @@ app.post("/spotify/playlist/:id/add", async (c) => {
     const id = c.req.param("id")
     const body = await c.req.json()
 
-    const res = await fetch(`https://api.spotify.com/v1/users/${id}/playlists`, {
+    const res = await fetch(`https://api.spotify.com/v1/playlists/${id}/tracks`, {
         method: "POST",
         headers: {
             "Authorization": token,
@@ -263,12 +263,10 @@ app.post("/spotify/playlist/:id/add", async (c) => {
     const data = await res.json()
 
     if (!res.ok) {
-        return c.json(
-            createErrorObject(res)
-        )
+        return c.json({ success: false, data })
     }
 
-    return c.json(data)
+    return c.json({ success: true, data })
 })
 
 Deno.serve({ port: port }, app.fetch)

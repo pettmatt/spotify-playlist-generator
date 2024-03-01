@@ -1,5 +1,4 @@
 <script lang="ts">
-    import tfMain from "./lib/tensorflow-base"
     import SpotifyLogin from "./components/SpotifyLogin.svelte"
     import Questionere from "./components/Questionere.svelte"
     import PlaylistCreation from "./components/PlaylistCreation.svelte"
@@ -16,9 +15,11 @@
 </script>
 
 <main>
-    <h1>Music recommender</h1>
+    <nav id="navigation">
+        <h1>Playlist creator</h1>
+        <SpotifyLogin />
+    </nav>
 
-    <SpotifyLogin />
 
     {#if loggedIn }
         {#if applicationPhase === 0}

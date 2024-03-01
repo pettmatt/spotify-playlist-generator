@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from "uuid"
 import { makeApiPostRequest } from "./spotify"
 import type { Track } from "./types/spotifyInterface"
 
@@ -37,6 +38,10 @@ export function priorityRNGFilter(object: object) {
     const keys = Object.keys(object)
     const values = Object.values(object)
 
+    if (values.length < 5) {
+        return object
+    }
+
     let lowPriority = []
     let highPriority = []
 
@@ -54,7 +59,7 @@ export function priorityRNGFilter(object: object) {
     while (highPriority.length < 5) {
         if (highPriority.length < 5 && lowPriority.length > 2) {
             const randomValues = pickRandomValuesFromList(
-                lowPriority, lowPriority.length / 5
+                lowPriority, Math.floor(lowPriority.length / 5)
             )
             highPriority.push(...randomValues)
         }
@@ -80,8 +85,6 @@ export function extractTrackIds(list: Track[] | any[]) {
         }
 
         else if (typeof list[i] === "object") {
-            console.log(list)
-            console.log(list[i])
             const trackList = list[i].tracks.items as Track[]
 
             for (let j = 0; j < trackList.length; j++) {
@@ -109,9 +112,9 @@ export async function createNewPlaylist() {
     if (typeof idResponse === "object") return idResponse
 
     const response = await makeApiPostRequest(`/spotify/u/${idResponse}/playlist/create`, {
-        name: `generated-playlist`,
+        name: `GP-${uuidv4()}`,
         public: false,
-        description: `Generated with a web tool`
+        description: `Playlist was generated with a web tool`
     })
 
     if (!response.error)
@@ -121,13 +124,16 @@ export async function createNewPlaylist() {
 }
 
 export async function addTracksToPlaylist(id: string, trackUris: string[]) {
-    const response = await makeApiPostRequest(`/spotify/playlist/${id}/add`, {
-        playlist_id: id,
-        uris: trackUris
-    })
+    const response = []
 
-    if (!response.error)
-        sessionStorage.setItem("spotify-playlist", JSON.stringify(response))
+    // Pushing tracks patches of 100 at a time.
+    for (let i = 0; i < trackUris.length / 100; i++) {
+        const res = await makeApiPostRequest(`/spotify/playlist/${id}/add`, {
+            uris: trackUris.slice(i * 100, 100 * (i + 1))
+        })
+
+        response.push(res)
+    }
 
     return response
 }
