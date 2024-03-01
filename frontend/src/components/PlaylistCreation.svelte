@@ -28,6 +28,11 @@
             track, [/<li class='dark-background-round'>(.*?)<\/li>/g, /<li class='dark-background-round'>/g, /<\/?li>/g]
         ))
 
+        console.log("genres", genres)
+        console.log("artist genres", artistGenres)
+        console.log("artist names", artistNames)
+        console.log("Artists in track", trackArtists)
+
         // Make multiple http-requests to Spotify, if the search term cannot be put into one!asdsa
         const similarArtistSearch = await Promise.all(
             flattenArray([...artistNames, ...trackArtists])
@@ -39,6 +44,8 @@
                 })
         )
 
+        console.log("similar artist search", similarArtistSearch)
+
         const flatGenreList = flattenArray([ ...genres, ...artistGenres])
 
         // Based on how many times genre appears, its priority rises and is more likely to be searched.
@@ -49,8 +56,10 @@
 
         console.log("Priority", genrePriority)
 
-        // Filtering lists with some RNG
-        const filteredGenres = priorityRNGFilter(genrePriority)
+        // Filtering lists with some RNG, no one needs a playlist that is thousands of tracks long.
+        // With RNG we can create "unique" playlists based on what the person wants or likes,
+        // by filtering the search terms to around 10%.
+        const filteredGenres = priorityRNGFilter(genrePriority) // there should be more results from genres, because the user is more likely to want to listen these results.
         const filteredArtists = similarArtistSearch.map(result => 
             defaultRNGFilter(result.artists)
         )
@@ -90,6 +99,10 @@
         // console.log("playlist id", playlistResponse)
         const genreTrackIds = extractTrackIds(genreSearch)
         const artistTrackIds = extractTrackIds(artistResults)
+        console.log("BEFORE ==============")
+        console.log(genreSearch)
+        console.log(artistResults)
+        console.log("AFTER ===============")
         console.log(genreTrackIds)
         console.log(artistTrackIds)
 

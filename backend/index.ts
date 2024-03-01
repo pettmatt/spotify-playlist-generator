@@ -203,7 +203,7 @@ app.get("/spotify/track/search/:query", async (c) => {
     const token = c.req.header("Authorization")
     const query = c.req.param("query")
     
-    const res = await fetch(`https://api.spotify.com/v1/search?q=${query}&type=track&limit=10`, {
+    const res = await fetch(`https://api.spotify.com/v1/search?q=${query}&type=track&limit=6`, {
         headers: {
             "Authorization": token,
             "Content-Type": "application/json"

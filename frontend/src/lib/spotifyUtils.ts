@@ -53,7 +53,9 @@ export function priorityRNGFilter(object: object) {
 
     while (highPriority.length < 5) {
         if (highPriority.length < 5 && lowPriority.length > 2) {
-            const randomValues = pickRandomValuesFromList(lowPriority, lowPriority.length / 3)
+            const randomValues = pickRandomValuesFromList(
+                lowPriority, lowPriority.length / 5
+            )
             highPriority.push(...randomValues)
         }
         else break
@@ -63,27 +65,28 @@ export function priorityRNGFilter(object: object) {
 }
 
 export function defaultRNGFilter(list: any[]) {
-    return pickRandomValuesFromList(list, Math.floor(list.length / 3))
+    return pickRandomValuesFromList(list, Math.floor(
+        (list.length / 6 > 0) ? list.length / 10 : 1
+    ))
 }
 
 export function extractTrackIds(list: Track[] | any[]) {
-    // const cleanList = flattenArray(tracks)
     const newList: string[] = []
 
     for (let i = 0; i < list.length; i++) {
-        const trackList = list[i]
+        if (Array.isArray(list[i])) {
+            const extractedList = extractTrackIds(list[i])
+            newList.push(...extractedList)
+        }
 
-        for (let ii = 0; ii < trackList.length; ii++) {
-            console.log("ii", list[ii])
-            const searchResults = list[ii]
+        else if (typeof list[i] === "object") {
+            console.log(list)
+            console.log(list[i])
+            const trackList = list[i].tracks.items as Track[]
 
-            for (let iii = 0; iii < searchResults.length; iii++) {
-                const tracks = searchResults[iii].tracks.items
-
-                for (let j = 0; j < tracks.length; j++) {
-                    const uriString = tracks[j].uri
-                    newList.push(uriString)
-                }
+            for (let j = 0; j < trackList.length; j++) {
+                const track = trackList[j]
+                newList.push(track.uri)
             }
         }
     }
