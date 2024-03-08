@@ -5,6 +5,7 @@
     import { checkSession } from "./lib/spotify"
     import "./style/navigator.css"
 
+    // Remove the checkSession below and fix it to correlate the result of spotifyLogin checkSession function.
     let loggedIn = checkSession()
     let applicationPhase = 0
     let questionereAnswers: string[][]
@@ -17,11 +18,15 @@
     function startFromTheStart() {
         applicationPhase = 0
     }
+
+    function handleUpdateLoginState(event: any) {
+        loggedIn = event.detail.loggedIn
+    }
 </script>
 
 <nav id="navigation" class={loggedIn ? "minimal" : "display"}>
     <h1>Playlist creator</h1>
-    <SpotifyLogin />
+    <SpotifyLogin on:updateLoginState={handleUpdateLoginState} />
 </nav>
 
 <main>

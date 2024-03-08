@@ -8,14 +8,18 @@
     let pageUri: string = window.location.href
 
     const url = new URL(pageUri)
-    const error = url.searchParams.get("error")
+    let error = url.searchParams.get("error")
+    let errorDetails: string | null = null
     const codeParam = url.searchParams.get("code") || null
     const stateParam = url.searchParams.get("state") || null
+
+    const dispatch = createEventDispatcher()
 
     async function validateSession() {
         const sessionIsValid = checkSession()
 
-        if (sessionIsValid) return // Nothing to do here. Session should be usable.
+        // Nothing to do here. Session should be usable.
+        if (sessionIsValid) return
 
         if (error)
             authenticationError = { error }
@@ -23,27 +27,32 @@
         else if (pageUri?.includes("callback")) {
             getAccessToken(codeParam, stateParam)
                 .then(res => {
-                    // console.log("userauth res", res)
                     const token = res.token
                     authentication = validateSessionToken(token)
+                    updateLoginState(true)
                 })
                 .catch(err => {
-                    // "Session expired, please login again."
-                    // "Authentication failed, please try again."
-                    console.log("ERROR", err)
+                    error = "Session expired, please login again."
+                    errorDetails = err
                     logout()
+                    updateLoginState(false)
                 })
         }
         else console.log("If you see this, something probably broke while validating the session.")
     }
 
     function logout() {
+        updateLoginState(false)
         authentication = false
         localStorage.removeItem("token")
         localStorage.removeItem("token-creation-time")
 
         // if (pageUri.includes("callback"))
         //     history.pushState(null, "", url.origin)
+    }
+
+    function updateLoginState(value: boolean) {
+        dispatch("updateLoginState", { loggedIn: value })
     }
 
     validateSession()
@@ -54,7 +63,7 @@
 {:else if authenticationError}
     <div class="error-wrapper">
         <p>Login error: <span>{ authenticationError }</span></p>
-        <p>Details: <span>{ authenticationError }</span></p>
+        <p>Details: <span>{ errorDetails }</span></p>
     </div>
 {:else}
     <div class="login-wrapper">
