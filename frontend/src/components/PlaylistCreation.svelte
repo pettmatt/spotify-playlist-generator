@@ -1,4 +1,5 @@
 <script lang="ts">
+import { createEventDispatcher } from "svelte"
 import { checkSession, makeApiRequest } from "../lib/spotify"
 import { createNewPlaylist, defaultRNGFilter, flattenArray, extractTrackIds, getSectionFromString, priorityRNGFilter, addTracksToPlaylist } from "../lib/spotifyUtils"
 
@@ -6,8 +7,14 @@ export let userChoices: string[][]
 let processing: boolean = false
 let message: string | null = null
 
+const dispatch = createEventDispatcher()
+
 function processingStatus(b: boolean) {
     processing = b
+}
+
+function reset() {
+    dispatch("generateNewPlaylist")
 }
 
 async function createPlaylist() {
@@ -29,12 +36,7 @@ async function createPlaylist() {
         track, [/<li class='dark-background-round'>(.*?)<\/li>/g, /<li class='dark-background-round'>/g, /<\/?li>/g]
     ))
 
-    console.log("genres", genres)
-    console.log("artist genres", artistGenres)
-    console.log("artist names", artistNames)
-    console.log("Artists in track", trackArtists)
-
-    // Make multiple http-requests to Spotify, if the search term cannot be put into one!asdsa
+    // Make multiple http-requests to Spotify, if the search term cannot be put into one!
     const similarArtistSearch = await Promise.all(
         flattenArray([...artistNames, ...trackArtists])
             .map(async artist => {
@@ -45,8 +47,6 @@ async function createPlaylist() {
             })
     )
 
-    console.log("similar artist search", similarArtistSearch)
-
     const flatGenreList = flattenArray([...genres, ...artistGenres])
 
     // Based on how many times genre appears, its priority rises and is more likely to be searched.
@@ -54,8 +54,6 @@ async function createPlaylist() {
     for (let genre of flatGenreList) {
         genrePriority[genre] = (genrePriority[genre] || 0) + 1
     }
-
-    console.log("Priority", genrePriority)
 
     // Filtering lists with some RNG, no one needs a playlist that is thousands of tracks long.
     // With RNG we can create "unique" playlists based on what the person wants or likes,
@@ -90,7 +88,6 @@ async function createPlaylist() {
     const playlist = await createNewPlaylist()
 
     if (playlist.error) {
-        console.log(playlist)
         processing = false
         message = `${playlist.error.message} ${playlist.error.status} error`
         return
@@ -100,7 +97,6 @@ async function createPlaylist() {
     const artistTrackIds = extractTrackIds(artistResults)
 
     const addingToPlaylist = await addTracksToPlaylist(playlist.id, [...genreTrackIds, ...artistTrackIds])
-    console.log("addingToPlaylist", addingToPlaylist)
 
     // 4) Show the playlist with a link to it OR message that there were no errors.
     processingStatus(false)
@@ -111,7 +107,7 @@ async function createPlaylist() {
 {#if processing}
     <h2>Loading</h2>
 {:else if message}
-    <h2>Message</h2>
+    <h2>Notification</h2>
     <p>{message}</p>
 {:else}
     <div class="playlist-wrapper">
@@ -153,6 +149,9 @@ async function createPlaylist() {
             </div>
         </div>
 
-        <button on:click={() => createPlaylist()}>Generate playlist</button>
+        <div class="button-wrapper">
+            <button on:click={() => reset()}>Reset</button>
+            <button on:click={() => createPlaylist()}>Generate playlist</button>
+        </div>
     </div>
 {/if}

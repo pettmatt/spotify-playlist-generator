@@ -22,7 +22,6 @@
             const profileRes = await makeApiRequest("/spotify/u/profile")
             profile = processSpotifyResponse(profileRes)
             localStorage.setItem("spotify-profile", JSON.stringify(profile))
-            console.log(profile)
         }
     }
 
@@ -45,25 +44,24 @@
 </div>
 
 <style>
-    .profile-wrapper {
-        display: flex;
-        flex-direction: column;
-        text-align: right;
-    }
-    .profile {
-        display: flex;
-        gap: 0.5em;
-        padding: 0.25em;
-        border: 2px solid none;
-        border-radius: 2em;
-        max-width: 12em;
-        transform: ease 0.5s border;
-    }
-    .profile:hover {
-        color: var(--spotify-green);
-    }
-    .profile-image {
-        border-radius: 2em;
-        width: 2rem;
-    }
+.profile-wrapper {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+}
+.profile {
+    display: flex;
+    max-width: 12em;
+    border-radius: 2em;
+    border: 2px solid none;
+    gap: 0.5em;
+    transform: ease 0.5s border;
+}
+.profile:hover {
+    color: var(--spotify-green);
+}
+.profile-image {
+    border-radius: 2em;
+    width: 2rem;
+}
 </style>

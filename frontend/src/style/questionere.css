@@ -10,9 +10,9 @@
     flex-wrap: wrap;
     width: 100%;
     gap: 0.45em;
-    padding: 0.75em;
+    padding-right: 1.15em;
     overflow-y: scroll;
-    max-height: 70vh;
+    height: 67vh;
 }
 
 .question-wrapper {

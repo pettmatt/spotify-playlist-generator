@@ -1,61 +1,58 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte"
-    import { validateSessionToken, checkSession, getAccessToken } from "../lib/spotify"
-    import SpotifyProfile from "./SpotifyProfile.svelte"
+import { createEventDispatcher } from "svelte"
+import { validateSessionToken, checkSession, getAccessToken } from "../lib/spotify"
+import SpotifyProfile from "./SpotifyProfile.svelte"
 
-    let authenticationError: null | any = null
-    let authentication: boolean = (localStorage.getItem("token") ? true : false)
-    let pageUri: string = window.location.href
+let authenticationError: null | any = null
+let authentication: boolean = (localStorage.getItem("token") ? true : false)
+let pageUri: string = window.location.href
 
-    const url = new URL(pageUri)
-    let error = url.searchParams.get("error")
-    let errorDetails: string | null = null
-    const codeParam = url.searchParams.get("code") || null
-    const stateParam = url.searchParams.get("state") || null
+const url = new URL(pageUri)
+let error = url.searchParams.get("error")
+let errorDetails: string | null = null
+const codeParam = url.searchParams.get("code") || null
+const stateParam = url.searchParams.get("state") || null
 
-    const dispatch = createEventDispatcher()
+const dispatch = createEventDispatcher()
 
-    async function validateSession() {
-        const sessionIsValid = checkSession()
+async function validateSession() {
+    const sessionIsValid = checkSession()
 
-        // Nothing to do here. Session should be usable.
-        if (sessionIsValid) return
+    // Nothing to do here. Session should be usable.
+    if (sessionIsValid) return
 
-        if (error)
-            authenticationError = { error }
+    if (error)
+        authenticationError = { error }
 
-        else if (pageUri?.includes("callback")) {
-            getAccessToken(codeParam, stateParam)
-                .then(res => {
-                    const token = res.token
-                    authentication = validateSessionToken(token)
-                    updateLoginState(true)
-                })
-                .catch(err => {
-                    error = "Session expired, please login again."
-                    errorDetails = err
-                    logout()
-                    updateLoginState(false)
-                })
-        }
-        else console.log("If you see this, something probably broke while validating the session.")
+    else if (pageUri?.includes("callback")) {
+        getAccessToken(codeParam, stateParam)
+            .then(res => {
+                const token = res.token
+                authentication = validateSessionToken(token)
+                updateLoginState(true)
+            })
+            .catch(err => {
+                error = "Session expired, please login again."
+                errorDetails = err
+                logout()
+                updateLoginState(false)
+            })
     }
+    else console.warn("If you see this, something probably broke while validating the session.")
+}
 
-    function logout() {
-        updateLoginState(false)
-        authentication = false
-        localStorage.removeItem("token")
-        localStorage.removeItem("token-creation-time")
+function logout() {
+    updateLoginState(false)
+    authentication = false
+    localStorage.removeItem("token")
+    localStorage.removeItem("token-creation-time")
+}
 
-        // if (pageUri.includes("callback"))
-        //     history.pushState(null, "", url.origin)
-    }
+function updateLoginState(value: boolean) {
+    dispatch("updateLoginState", { loggedIn: value })
+}
 
-    function updateLoginState(value: boolean) {
-        dispatch("updateLoginState", { loggedIn: value })
-    }
-
-    validateSession()
+validateSession()
 </script>
 
 {#if authentication}

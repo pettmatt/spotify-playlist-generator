@@ -1,135 +1,125 @@
 <!-- Question what the user thinks of these artists, songs and genres -->
 <script lang="ts">
-    import "../style/questionere.css"
-    import { type Artist, type Question, type Track } from "../lib/types/spotifyInterface"
-    import QuestionereProgressBar from "./QuestionereProgressBar.svelte"
-    import { createEventDispatcher } from "svelte"
-    import { makeApiRequest } from "../lib/spotify"
+import "../style/questionere.css"
+import { type Artist, type Question, type Track } from "../lib/types/spotifyInterface"
+import QuestionereProgressBar from "./QuestionereProgressBar.svelte"
+import { createEventDispatcher } from "svelte"
+import { makeApiRequest } from "../lib/spotify"
 
-    const dispatch = createEventDispatcher()
-    let answers: string[][] = []
+const dispatch = createEventDispatcher()
 
-    const profile = { explicitContent: null }
-    let currentQuestion = 0
-    let questions: Question[] = [
-        {
-            question: "Select genres",
-            uri: "/spotify/genres",
-            getOptions: async (): Promise<string>  => {
-                const genresObject = await makeApiRequest(questions[currentQuestion].uri)
-                const genres = genresObject.genres.map((g: string) =>
-                    capitalizeReplaceDashesInString(g)
-                )
-                return genres.map((g: string) => g)
-            }
-        },
-        {
-            question: "Do you still listen to them?",
-            subText: "Select artists that you want to influence your playlist.",
-            uri: "/spotify/u/artists",
-            getOptions: async (): Promise<string> => {
-                const artistObject = await makeApiRequest(questions[currentQuestion].uri)
-                const artists = artistObject.items
-                return artists.map((a: Artist) => 
-                    "<img src='" + a.images[2].url + "' alt='" + a.type + " profile image' />" +
-                    "<div class='details artist'>" +
-                    "<h3>" + a.name + "</h3>" +
-                    "<div class='genre-wrapper'>" +
-                        "<ul>" +
-                            a.genres.map((g: string) => (
-                                "<li class='dark-background-round'>" + capitalizeReplaceDashesInString(g) + "</li>"
-                            )) +
-                        "</ul>" +
-                    "</div>"
-                )
-            }
-        },
-        {
-            question: "Do you still like these tracks?",
-            subText: "Select tracks you want to influence your playlist.",
-            uri: "/spotify/u/tracks",
-            getOptions: async (): Promise<string> => {
-                const trackObject = await makeApiRequest(questions[currentQuestion].uri)
-                const tracks = trackObject.items
-                return tracks.map((t: Track) =>
-                    "<img src='" + t.album.images[1].url + "' alt='" + t.type + " image' />" +
-                    "<div class='details track'>" +
-                        "<h3>" + t.name + "</h3>" +
-                        "<p>" + t.album.name + "</p>" +
-                        "<div class='artist-wrapper'>" +
-                            "<ul>" +
-                                t.artists.map((a: Artist) => 
-                                    "<li class='dark-background-round'>" +
-                                        a.name +
-                                    "</li>"
-                                ) +
-                            "</ul>" +
-                        "</div>" +
-                    "</div>"
-                )
-            },
-        },
-        // {
-        //     question: "New playlist",
-        //     uri: "/spotify/search/heavy",
-        //     getOptions: async (): Promise<string> => {
-        //         const resultObject = await makeApiRequest(questions[currentQuestion].uri)
-        //         const results = resultObject.items
-        //         return results.map((r: Track) =>
-        //             "<img src='" + r.album.images[1].url + "' alt='" + r.type + " image' />" +
-        //             "<h3>" + r.name + "</h3>" +
-        //             "<p>" + r.album.name + "</p>"
-        //         )
-        //     },
-        // }
-    ]
-
-    function capitalizeReplaceDashesInString(s: string): string {
-        return s.charAt(0).toUpperCase() + s.slice(1).replaceAll("-", " ")
-    }
-
-    function progress() {
-        if (currentQuestion < questions.length)
-            currentQuestion++
-        else
-            dispatch("answerData", answers)
-    }
-
-    async function load(){
-        const profileLS = localStorage.getItem("spotify-profile") || null
-        const profile = (profileLS) && JSON.parse(profileLS)
-
-        if (profile) {
-            profile.explicitContent = profile.explicit_content.filter_enabled
+let answers: string[][] = []
+let currentQuestion = 0
+let questions: Question[] = [
+    {
+        question: "Select genres",
+        uri: "/spotify/genres",
+        getOptions: async (): Promise<string>  => {
+            const genresObject = await makeApiRequest(questions[currentQuestion].uri)
+            const genres = genresObject.genres.map((g: string) =>
+                capitalizeReplaceDashesInString(g)
+            )
+            return genres.map((g: string) => g)
         }
+    },
+    {
+        question: "Do you still listen to them?",
+        subText: "Select artists that you want to influence your playlist.",
+        uri: "/spotify/u/artists",
+        getOptions: async (): Promise<string> => {
+            const artistObject = await makeApiRequest(questions[currentQuestion].uri)
+            const artists = artistObject.items
+            return artists.map((a: Artist) => 
+                "<img src='" + a.images[2].url + "' alt='" + a.type + " profile image' />" +
+                "<div class='details artist'>" +
+                "<h3>" + a.name + "</h3>" +
+                "<div class='genre-wrapper'>" +
+                    "<ul>" +
+                        a.genres.map((g: string) => (
+                            "<li class='dark-background-round'>" + capitalizeReplaceDashesInString(g) + "</li>"
+                        )) +
+                    "</ul>" +
+                "</div>"
+            )
+        }
+    },
+    {
+        question: "Do you still like these tracks?",
+        subText: "Select tracks you want to influence your playlist.",
+        uri: "/spotify/u/tracks",
+        getOptions: async (): Promise<string> => {
+            const trackObject = await makeApiRequest(questions[currentQuestion].uri)
+            const tracks = trackObject.items
+            return tracks.map((t: Track) =>
+                "<img src='" + t.album.images[1].url + "' alt='" + t.type + " image' />" +
+                "<div class='details track'>" +
+                    "<h3>" + t.name + "</h3>" +
+                    "<p>" + t.album.name + "</p>" +
+                    "<div class='artist-wrapper'>" +
+                        "<ul>" +
+                            t.artists.map((a: Artist) => 
+                                "<li class='dark-background-round'>" +
+                                    a.name +
+                                "</li>"
+                            ) +
+                        "</ul>" +
+                    "</div>" +
+                "</div>"
+            )
+        },
     }
+]
 
-    function toggleAnswer(innerHTML: string) {
-        if (answers[currentQuestion] === undefined) answers[currentQuestion] = []
-        const answer = answers[currentQuestion]
-        const name = innerHTML
+function capitalizeReplaceDashesInString(s: string): string {
+    return s.charAt(0).toUpperCase() + s.slice(1).replaceAll("-", " ")
+}
 
-        if (answer.includes(name))
-            answers[currentQuestion] = answer.filter(a => a !== name)
-        else
-            answers[currentQuestion] = [...answer, name]
+function degress() {
+    if (currentQuestion > 0)
+        currentQuestion--
+}
+
+function progress() {
+    if (currentQuestion < questions.length)
+        currentQuestion++
+    else
+        dispatch("answerData", answers)
+}
+
+async function load(){
+    const profileLS = localStorage.getItem("spotify-profile") || null
+    const profile = (profileLS) && JSON.parse(profileLS)
+
+    if (profile) {
+        profile.explicitContent = profile.explicit_content.filter_enabled
     }
+}
 
-    function handleToggleClick(o: string) {
-        const value = o.toLocaleLowerCase()
-        toggleAnswer(value)
-        console.log(answers)
-    }
+function toggleAnswer(innerHTML: string) {
+    if (answers[currentQuestion] === undefined) answers[currentQuestion] = []
+    const answer = answers[currentQuestion]
+    const name = innerHTML
 
-    load()
+    if (answer.includes(name))
+        answers[currentQuestion] = answer.filter(a => a !== name)
+    else
+        answers[currentQuestion] = [...answer, name]
+}
+
+function handleToggleClick(o: string) {
+    const value = o.toLocaleLowerCase()
+    toggleAnswer(value)
+    console.log(answers)
+}
+
+load()
 </script>
 
 <div class="questionere-wrapper">
-    <header class="questionere-header">
-        <QuestionereProgressBar progress={
-            {current: currentQuestion, ends: questions.length}
-        } />
-    </header>
+    <QuestionereProgressBar progress={{
+        current: currentQuestion,
+        ends: questions.length
+    }} />
     <div class="question-wrapper">
         {#each questions as q, i}
             {#if i === currentQuestion}
@@ -141,13 +131,13 @@
                     {#if q?.getOptions}
                         {#await q.getOptions() }
                         <div class="loading">
-                            <p>Next phase</p>
+                            <p>Loading . . .</p>
                         </div>
                         {:then data}
                             {#each data as o}
-                                <li class={((i === 0) 
+                                <li class={((i === 0)
                                     ? "genre"
-                                    : (i === 1) 
+                                    : (i === 1)
                                         ? "artist"
                                         : "track"
                                     )
@@ -172,8 +162,9 @@
             {/if}
         {/each}
 
-        <button disabled={currentQuestion > questions.length} on:click={progress}>
-            Next
-        </button>
+        <div class="button-wrapper">
+            <button on:click={degress} disabled={currentQuestion === 0}>Back</button>
+            <button on:click={progress}>Next</button>
+        </div>
     </div>
 </div>
