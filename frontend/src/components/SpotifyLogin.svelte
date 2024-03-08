@@ -45,6 +45,7 @@ function logout() {
     updateLoginState(false)
     authentication = false
     localStorage.removeItem("token")
+    localStorage.removeItem("spotify-profile")
     localStorage.removeItem("token-creation-time")
 }
 

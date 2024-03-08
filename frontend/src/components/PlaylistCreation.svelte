@@ -6,6 +6,7 @@ import { createNewPlaylist, defaultRNGFilter, flattenArray, extractTrackIds, get
 export let userChoices: string[][]
 let processing: boolean = false
 let message: string | null = null
+console.log("ASD", userChoices)
 
 const dispatch = createEventDispatcher()
 
@@ -114,44 +115,52 @@ async function createPlaylist() {
         <h2>Overview</h2>
         <p>The playlist will be created using these details</p>
 
-        <div class="overview-details">
-            <div class="overview-section">
-                <h3>Genres</h3>
-                <ul class="overview genre" aria-label="genre list">
-                    {#if userChoices[0]}
-                        {#each userChoices[0] as genre}
-                            <li>{@html genre}</li>
-                        {/each}
-                    {/if}
-                </ul>
-            </div>
+        {#if userChoices.length !== 0}
+            <div class="overview-details">
+                <div class="overview-section">
+                    <h3>Genres</h3>
+                    <ul class="overview genre" aria-label="genre list">
+                        {#if userChoices[0]}
+                            {#each userChoices[0] as genre}
+                                <li>{@html genre}</li>
+                            {/each}
+                        {/if}
+                    </ul>
+                </div>
 
-            <div class="overview-section">
-                <h3>Artists</h3>
-                <ul class="overview artist" aria-label="artist list">
-                    {#if userChoices[1]}
-                        {#each userChoices[1] as artist}
-                            <li>{@html artist}</li>
-                        {/each}
-                    {/if}
-                </ul>
-            </div>
+                <div class="overview-section">
+                    <h3>Artists</h3>
+                    <ul class="overview artist" aria-label="artist list">
+                        {#if userChoices[1]}
+                            {#each userChoices[1] as artist}
+                                <li>{@html artist}</li>
+                            {/each}
+                        {/if}
+                    </ul>
+                </div>
 
-            <div class="overview-section">
-                <h3>Tracks</h3>
-                <ul class="overview track" aria-label="track list">
-                    {#if userChoices[2]}
-                        {#each userChoices[2] as track}
-                            <li>{@html track}</li>
-                        {/each}
-                    {/if}
-                </ul>
+                <div class="overview-section">
+                    <h3>Tracks</h3>
+                    <ul class="overview track" aria-label="track list">
+                        {#if userChoices[2]}
+                            {#each userChoices[2] as track}
+                                <li>{@html track}</li>
+                            {/each}
+                        {/if}
+                    </ul>
+                </div>
             </div>
-        </div>
+        {:else}
+            <div class="error">
+                <p>You didn't choose any genres, artists or tracks.</p>
+            </div>
+        {/if}
 
         <div class="button-wrapper">
             <button on:click={() => reset()}>Reset</button>
-            <button on:click={() => createPlaylist()}>Generate playlist</button>
+            {#if userChoices.length !== 0}
+                <button on:click={() => createPlaylist()}>Generate playlist</button>
+            {/if}
         </div>
     </div>
 {/if}

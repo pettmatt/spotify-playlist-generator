@@ -80,7 +80,7 @@ function degress() {
 }
 
 function progress() {
-    if (currentQuestion < questions.length)
+    if (currentQuestion < questions.length - 1)
         currentQuestion++
     else
         dispatch("answerData", answers)

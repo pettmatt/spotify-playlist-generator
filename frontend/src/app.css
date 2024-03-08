@@ -1,5 +1,8 @@
 :root {
 	--spotify-green: #1DB954;
+	--highlight-color: #747bff;
+	--light-background-color: #242424;
+	--element-background-color: #1a1a1a;
 	font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 	line-height: 1.5;
 	font-weight: 400;
@@ -65,12 +68,12 @@ button {
 	font-size: 1em;
 	font-weight: 500;
 	font-family: inherit;
-	background-color: #1a1a1a;
+	background-color: var(--element-background-color);
 	cursor: pointer;
 }
 
 button:hover {
-	border-color: #646cff;
+	border-color: var(--highlight-color);
 }
 
 button:focus,
@@ -102,6 +105,7 @@ li {
 	text-decoration: underline;
 	transition: none;
 	border: none;
+	padding: 0;
 }
 
 .link-like-button:hover {
@@ -126,7 +130,7 @@ li {
 	}
 
 	a:hover {
-		color: #747bff;
+		color: var(--highlight-color);
 	}
 
 	button {

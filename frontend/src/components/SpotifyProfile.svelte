@@ -1,31 +1,31 @@
 <script lang="ts">
-    import { makeApiRequest } from "../lib/spotify"
-    import { processSpotifyResponse } from "../lib/spotifyProcessResponse"
+import { makeApiRequest } from "../lib/spotify"
+import { processSpotifyResponse } from "../lib/spotifyProcessResponse"
 
-    export let logout: any
+export let logout: any
 
-    interface SpotifyRequestError {
-        error: {
-            message: string
-            status: number
-        }
+interface SpotifyRequestError {
+    error: {
+        message: string
+        status: number
     }
+}
 
-    let profile: SpotifyRequestError | any = null
-    let showProfile = false
+let profile: SpotifyRequestError | any = null
+let showProfile = false
 
-    async function getProfile() {
-        const profileLS = localStorage.getItem("spotify-profile")
-        if (profileLS) {
-            profile = JSON.parse(profileLS)
-        } else {
-            const profileRes = await makeApiRequest("/spotify/u/profile")
-            profile = processSpotifyResponse(profileRes)
-            localStorage.setItem("spotify-profile", JSON.stringify(profile))
-        }
+async function getProfile() {
+    const profileLS = localStorage.getItem("spotify-profile")
+    if (profileLS) {
+        profile = JSON.parse(profileLS)
+    } else {
+        const profileRes = await makeApiRequest("/spotify/u/profile")
+        profile = processSpotifyResponse(profileRes)
+        localStorage.setItem("spotify-profile", JSON.stringify(profile))
     }
+}
 
-    getProfile()
+getProfile()
 </script>
 
 <div class="profile-wrapper">

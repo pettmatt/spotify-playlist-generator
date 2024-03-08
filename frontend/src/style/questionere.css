@@ -19,6 +19,11 @@
     position: relative;
 }
 
+.question-wrapper h2,
+.question-wrapper p {
+    margin: 0;
+}
+
 .question-wrapper .loading {
     width: 100%;
     height: 100%;
@@ -114,31 +119,39 @@
     height: 70vh;
     overflow-y: scroll;
     margin-bottom: 1em;
+    padding-right: 1em;
 }
 
 .overview-details .overview {
     display: flex;
     flex-direction: row;
-    overflow-x: scroll;
     gap: 0.6em;
-}
-
-.overview-section {
-    width: auto;
-    min-width: 15%;
-    max-width: 50%;
     overflow-x: scroll;
+    padding-bottom: 1.2em;
 }
 
 .genre > li,
 .overview > li {
     border-color: var(--light-highlighter-color);
+    background-color: var(--element-background-color);
     border: 1px solid;
 }
 
+.overview > li {
+    min-width: 15rem;
+    max-width: 15rem;
+}
+
+.overview li .details {
+    margin-bottom: 0.5em;
+}
+
 .genre > li {
+    min-width: 8rem;
+    max-width: 8rem;
     border-radius: 0.4em;
     padding: 0.5em 1em;
+    text-align: center;
 }
 
 .artist > li,
@@ -146,13 +159,13 @@
     border-radius: 0 0 0.4em 0.4em;
 }
 
-.overview-details .artist,
-.overview-details .track {
-    min-width: 10vw;
-}
-
 .overview img {
     width: 100%;
+}
+
+.playlist-wrapper .error {
+    font-size: 1.5rem;
+    font-weight: 600;
 }
 
 /* Default mobile view */
