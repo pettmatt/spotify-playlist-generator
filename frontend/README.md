@@ -48,4 +48,10 @@ export default writable(0)
 
 ## Introduction
 
+### Original Vision
+
 Too annoyed to Spotify's algorithm? Well give this app a try, which uses TensorFlow.js to predict what kind of music you may like utilizing dot-product implementation. What this means in practice is that the application uses ML-model to try to look for music that alligns with your interests, by at first asking what kind of music you like and then trying to match those interests to something new. To improve the results (if you want to explore new bands) I recommend to enable the "ignore bands I have heard before" setting. The setting isn't perfect and only checks for artists and bands you follow with your profile.
+
+### Current state
+
+Application could be improved visually and by including more robust way of choosing which songs are included in the playlist. Currently this version doesn't include any sensible algorithm, which means generated playlists can seem somewhat familiar.
